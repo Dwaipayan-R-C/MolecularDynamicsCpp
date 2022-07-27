@@ -33,7 +33,7 @@ void initialize(Atoms &atoms) {
         }
     }
 }
-tuple<Array3Xd, Array3Xd> Verlet_one(double dt, Atoms &atoms) {
+void Verlet_one(double dt, Atoms &atoms) {
     int i;
     //  Update positions and velocity with current velocity and acceleration
 
@@ -42,11 +42,11 @@ tuple<Array3Xd, Array3Xd> Verlet_one(double dt, Atoms &atoms) {
         atoms.positions.col(i) += atoms.velocities.col(i) * dt + 0.5*atoms.forces.col(i)*dt*dt;
     }
 //    std::cout << atoms.velocities.sum()<< std::endl;
-    return make_tuple(atoms.velocities, atoms.positions);
+
 }
 
 
-Array3Xd Verlet_two(double dt, Atoms &atoms) {
+void Verlet_two(double dt, Atoms &atoms) {
     int i;
     //  Update velocity with updated acceleration
     for (i = 0; i < nb_atoms; i++) {
@@ -54,6 +54,6 @@ Array3Xd Verlet_two(double dt, Atoms &atoms) {
     }
 //    std::cout << atoms.velocities.sum()<< std::endl;
 //    atoms.velocities = berendsen_thermostat(atoms,10, timescale, 10*timescale);
-    return atoms.velocities;
+
 }
 

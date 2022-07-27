@@ -9,23 +9,11 @@
 #include "header/berendsen_thermostat.h"
 #include "header/gupta.h"
 #include "header/neighbors.h"
-
-
+#include "mpi.h"
+#include "header/domain.h"
 using namespace Eigen;
 
-//check starts
-//constexpr int nx = 2, ny = 2, nz = 2;
-//constexpr double lattice_constant = 1.5;
-//constexpr double cutoff = 5.0;
-//constexpr double delta = 0.0001;  // difference used for numerical (finite difference) computation of forces
-//
-//double A = 0.2061, xi = 1.790, p = 10.229, q = 4.036, re = 4.079/sqrt(2);
-//Positions_t positions(3,nx * ny * nz);
-//NeighborList neighbor_list(cutoff);
-//
-//Atoms atoms(positions);
-// check ends
-// Global Variable Declaration
+
 string names;
 double potential = 0;
 double kinetic_energy = 0;
@@ -33,32 +21,26 @@ double total_energy = 0;
 int count_relax = 0;
 int relax_value = 0;
 Positions_t positions(3,nb_atoms);
-Atoms atoms = {
-        positions
-};
-double calculateAverage(double numbers[], int count )
-{
-    double sum = 0;         //sum is used to add all the values in the array
-    double average;
 
-    for (int i= 0 ; i < count; i++)
-        sum += numbers[i];
 
-    average = sum /count;
-    return average;
-}
 
-int main() {
+int main(int argc, char *argv[]) {
+    MPI_Init(&argc, &argv);
 
+
+//    Domain domain(MPI_COMM_WORLD, {30, 30, 30}, {1, 1, 2}, {0, 0, 1});
+    Domain domain(MPI_COMM_WORLD, {30, 30, 30}, {1, 1, MPI::comm_size(MPI_COMM_WORLD)}, {0, 0, 1});
     // reads the initial atomic position and velocity from xyz file
     // assigns to the corresponding
     clock_t start, end;
     start = clock();
     auto [positions, velocities]{read_xyz_with_velocities("../../xyz/cluster_923.xyz")};
+    Atoms atoms{
+            positions, velocities
+    };
+//    std::cout << "hey there" << std::endl;
 
-    atoms.positions=positions;
-    atoms.velocities = 0;
-
+    atoms.masses = mass;
     // gets the initial force from Lennard Jones potential
 //    atoms.forces = lj_direct_summation_force(atoms);
     int number = 0;
@@ -66,48 +48,41 @@ int main() {
     double totalEnergy = 0;
     int k = 0;
     double alpha = 0;
+    double distnace ;
+    NeighborList neighbor_list(rc);
+//    for (int i =0;i<3;i++){
+//        distnace= atoms.positions.row(i).maxCoeff() - atoms.positions.row(i).minCoeff();
+//        std::cout<<distnace<<"\n";
+//    }
+
     for (int i=0; i<nb_steps;i++){
+        std::cout<<atoms.nb_atoms()<<std::endl;
+        domain.enable(atoms);
+        std::cout<<atoms.nb_atoms()<<std::endl;
         // Verlet prediction 1
-        tuple<Array3Xd, Array3Xd> verlet_one_return_data = Verlet_one(timescale, atoms);
-        atoms.velocities = get<0>(verlet_one_return_data);
-        atoms.positions = get<1>(verlet_one_return_data);
-
-        //Increase the timestep
-        //implement the formula of constant latent heat
-        // Onserve the energy diagrams
-
-            if(i%tau == 0 && i != 0) {
-                // avg_temperature[k] = temperature/20;
-//            std::cout << temperature/tau << std::endl;
-                std::cout << "[" << totalEnergy / (relax_value) << " , " << temperature / (relax_value) << "]," << std::endl;
-                relax_value = 0;
-                count_relax = 0;
-                temperature = 0;
-                totalEnergy = 0;
-                // Determine alpha
-                // del Q = Ekinetic' - Ekinetic
-                // del Q = Ekinetic (sq of alpha - 1)
-                alpha = sqrt((delQ / kinetic_energy) + 1);
-                atoms.velocities = atoms.velocities * alpha;
-                k = k + 1;
-            }
-
+        Verlet_one(timescale, atoms);
 
         // Update force for Lennard jones
         // atoms.forces = lj_direct_summation_force(atoms);
         // GUPTA
-        NeighborList neighbor_list(rc);
+        std::cout<<atoms.nb_atoms()<<std::endl;
+        domain.exchange_atoms(atoms);
+        std::cout<<atoms.nb_atoms()<<std::endl;
+        domain.update_ghosts(atoms, 2 * rc);
+        std::cout<<atoms.nb_atoms()<<std::endl;
         neighbor_list.update(atoms);
+        std::cout<<atoms.nb_atoms()<<std::endl;
         potential = gupta(atoms,neighbor_list,rc);
 
         // Verlet 2 propagation with updated force
-        atoms.velocities = Verlet_two(timescale, atoms);
+        Verlet_two(timescale, atoms);
         // atoms.velocities = berendsen_thermostat(atoms,1500000, timescale, 10*timescale, kb);
 
         // Calculate Kinetic and Lennard Jones Potential Energy
         // potential = Potential(atoms);
         kinetic_energy = Kinetic(atoms);
         total_energy =  potential + kinetic_energy;
+        domain.disable(atoms);
 //        std::cout << total_energy<< std::endl;
         // save xyz file
         if(i%save_every == 0){
@@ -123,8 +98,22 @@ int main() {
             relax_value+=1;
 //            count_relax = 0;
         }
-        count_relax +=1;
 
+        if(i%tau == 0 && i != 0) {
+
+            std::cout << "[" << totalEnergy / (relax_value) << " , " << temperature / (relax_value) << "]," << std::endl;
+            relax_value = 0;
+            count_relax = 0;
+            temperature = 0;
+            totalEnergy = 0;
+            // Determine alpha
+            // del Q = Ekinetic' - Ekinetic
+            // del Q = Ekinetic (sq of alpha - 1)
+            alpha = sqrt((delQ / kinetic_energy) + 1);
+            atoms.velocities = atoms.velocities * alpha;
+            k = k + 1;
+        }
+        count_relax +=1;
 //        totalEnergy += kinetic_energy;
 
 
@@ -134,6 +123,7 @@ int main() {
 
     end = clock();
     printf ("Time taken: %f secs\n",((float) end - start)/CLOCKS_PER_SEC);
+    MPI_Finalize();
     return 0;
 }
 //

@@ -16,14 +16,14 @@
  * Argument - timestep, Atoms
  */
 void initialize(Atoms &atoms);
-tuple<Eigen::Array3Xd,Eigen::Array3Xd>Verlet_one(double dt, Atoms &atoms);
+void Verlet_one(double dt, Atoms &atoms);
 
 
 /*
  * Verlet_two is the propagation step with updated velocity by dt
  * Argument - timestep, Atoms
  */
-Eigen::Array3Xd Verlet_two(double dt, Atoms &atoms);
+void Verlet_two(double dt, Atoms &atoms);
 
 
 
