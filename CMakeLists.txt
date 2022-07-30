@@ -7,14 +7,14 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_CXX_STANDARD 17)
 
 include(tools)
-#Adding gtset
-include(FetchContent)
-FetchContent_Declare(
-        googletest
-        URL https://github.com/google/googletest/archive/eaf9a3fd77869cf95befb87455a2e2a2e85044ff.zip
-)
-FetchContent_MakeAvailable(googletest)
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+# #Adding gtset
+# include(FetchContent)
+# FetchContent_Declare(
+#         googletest
+#         URL https://github.com/google/googletest/archive/eaf9a3fd77869cf95befb87455a2e2a2e85044ff.zip
+# )
+# FetchContent_MakeAvailable(googletest)
+# set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 #////////
 add_external_package(Eigen3 VERSION 3.4.0 CONFIG)
 find_package(MPI REQUIRED)
@@ -34,6 +34,7 @@ set(MYPROJECT_HDRS
         ${CMAKE_CURRENT_SOURCE_DIR}/header/variable_def.h
         ${CMAKE_CURRENT_SOURCE_DIR}/header/verlet.h
         ${CMAKE_CURRENT_SOURCE_DIR}/header/neighbors.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/header/milestones.h
 
         )
 
@@ -49,6 +50,7 @@ set(MYPROJECT_SRCS
         ${CMAKE_CURRENT_SOURCE_DIR}/srcs/lj_kinetic_potential.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/srcs/xyz.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/srcs/neighbors.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/srcs/milestones.cpp
         )
 
 set(MYPROJECT_executable_SRCS
@@ -57,5 +59,6 @@ set(MYPROJECT_executable_SRCS
 
 # Simulation code
 add_executable(myproject ${MYPROJECT_SRCS} ${MYPROJECT_HDRS} ${MYPROJECT_executable_SRCS})
-target_link_libraries(myproject PUBLIC Eigen3::Eigen gtest gtest_main MPI::MPI_CXX)
+target_link_libraries(myproject PUBLIC Eigen3::Eigen MPI::MPI_CXX)
+# MPI::MPI_CXX
 

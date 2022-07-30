@@ -6,7 +6,7 @@
 
 using namespace Eigen;
 // XYZ File constants
-const std::string filename = "../simulation/trajectory";
+const std::string filename = "/trajectory";
 const std::string file_extension = ".xyz";
 
 // Simulation Variable Declaration

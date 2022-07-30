@@ -6,7 +6,7 @@
 #include "../header/neighbors.h"
 
 
-Array3Xd lj_direct_summation_force(Atoms &atoms){
+void lj_direct_summation_force(Atoms &atoms){
     int i, j, k;
     double f, rSqd;
     double rij[3];
@@ -26,7 +26,7 @@ Array3Xd lj_direct_summation_force(Atoms &atoms){
             accln.col(j) -= (pos.col(i) - pos.col(j))*f/mass;
         }
     }
-    return accln;
+    atoms.forces = accln;
 }
 //
 // Created by Dwaipayan on 20-05-2022.
