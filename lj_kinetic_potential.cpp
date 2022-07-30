@@ -12,7 +12,7 @@ double Kinetic(Atoms &atoms) {
     double v2, kin;
     kin = 0.;
 
-    for (int i = 0; i < nb_atoms; i++) {
+    for (int i = 0; i < atoms.nb_atoms(); i++) {
         v2 = 0.;
 
         for (int j = 0; j < 3; j++) {

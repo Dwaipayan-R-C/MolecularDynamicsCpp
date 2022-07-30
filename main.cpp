@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
 
 
 //    Domain domain(MPI_COMM_WORLD, {30, 30, 30}, {1, 1, 2}, {0, 0, 1});
-    Domain domain(MPI_COMM_WORLD, {30, 30, 30}, {1, 1, MPI::comm_size(MPI_COMM_WORLD)}, {0, 0, 1});
+//     Domain domain(MPI_COMM_WORLD, {40, 40, 40}, {1, 1, MPI::comm_size(MPI_COMM_WORLD)}, {0, 0, 1});
     // reads the initial atomic position and velocity from xyz file
     // assigns to the corresponding
     clock_t start, end;
@@ -38,9 +38,10 @@ int main(int argc, char *argv[]) {
     Atoms atoms{
             positions, velocities
     };
-//    std::cout << "hey there" << std::endl;
-
     atoms.masses = mass;
+//    for (int i=0;i<atoms.nb_atoms();i++){
+//        atoms.masses.row(i) = mass;
+//    }
     // gets the initial force from Lennard Jones potential
 //    atoms.forces = lj_direct_summation_force(atoms);
     int number = 0;
@@ -56,34 +57,51 @@ int main(int argc, char *argv[]) {
 //    }
 
     for (int i=0; i<nb_steps;i++){
-        std::cout<<atoms.nb_atoms()<<std::endl;
-        domain.enable(atoms);
-        std::cout<<atoms.nb_atoms()<<std::endl;
+        int rank;
+        // MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+//        std::cout<<"Rank : "<<rank<<std::endl;
+//        std::cout<<"Masses : "<<atoms.masses.rows()<<std::endl;
+//        std::cout<<"Energies : "<<atoms.energies.rows()<<std::endl;
+//        std::cout<<"Forces : "<<atoms.forces.cols()<<std::endl;
+//        std::cout<<"Velocities : "<<atoms.velocities.cols()<<std::endl;
+//        std::cout<<"\n"<<std::endl;
+        // domain.enable(atoms);
+
+//        std::cout<<atoms.nb_atoms()<<std::endl;
         // Verlet prediction 1
         Verlet_one(timescale, atoms);
+
 
         // Update force for Lennard jones
         // atoms.forces = lj_direct_summation_force(atoms);
         // GUPTA
-        std::cout<<atoms.nb_atoms()<<std::endl;
-        domain.exchange_atoms(atoms);
-        std::cout<<atoms.nb_atoms()<<std::endl;
-        domain.update_ghosts(atoms, 2 * rc);
-        std::cout<<atoms.nb_atoms()<<std::endl;
+//        std::cout<<atoms.nb_atoms()<<std::endl;
+        // domain.exchange_atoms(atoms);
+
+//        std::cout<<atoms.nb_atoms()<<std::endl;
+        // domain.update_ghosts(atoms, 2 * rc);
+
+//        std::cout<<atoms.nb_atoms()<<std::endl;
         neighbor_list.update(atoms);
-        std::cout<<atoms.nb_atoms()<<std::endl;
+//        std::cout<<"neighbor_list.update worked "<<rank<<std::endl;
+//        std::cout<<atoms.nb_atoms()<<std::endl;
         potential = gupta(atoms,neighbor_list,rc);
 
+
         // Verlet 2 propagation with updated force
-        Verlet_two(timescale, atoms);
+
+//        std::cout<<"Verlet_two worked "<<rank<<std::endl;
         // atoms.velocities = berendsen_thermostat(atoms,1500000, timescale, 10*timescale, kb);
 
         // Calculate Kinetic and Lennard Jones Potential Energy
         // potential = Potential(atoms);
         kinetic_energy = Kinetic(atoms);
+//        std::cout<<potential<<rank<<std::endl;
         total_energy =  potential + kinetic_energy;
-        domain.disable(atoms);
-//        std::cout << total_energy<< std::endl;
+
+        // domain.disable(atoms);
+
         // save xyz file
         if(i%save_every == 0){
             write_xyz(filename+ to_string(number) + file_extension, atoms);
@@ -107,7 +125,7 @@ int main(int argc, char *argv[]) {
             temperature = 0;
             totalEnergy = 0;
             // Determine alpha
-            // del Q = Ekinetic' - Ekinetic
+            // del Q = Ekinetic'(1/2 * m* (v*alpha)2) - Ekinetic (1/2 * m* v2)
             // del Q = Ekinetic (sq of alpha - 1)
             alpha = sqrt((delQ / kinetic_energy) + 1);
             atoms.velocities = atoms.velocities * alpha;
@@ -123,7 +141,7 @@ int main(int argc, char *argv[]) {
 
     end = clock();
     printf ("Time taken: %f secs\n",((float) end - start)/CLOCKS_PER_SEC);
-    MPI_Finalize();
+//     MPI_Finalize();
     return 0;
 }
 //

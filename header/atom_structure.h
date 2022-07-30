@@ -9,6 +9,7 @@ using Positions_t = Eigen::Array3Xd;
 using Velocities_t = Eigen::Array3Xd;
 using Forces_t = Eigen::Array3Xd;
 using Masses_t = Eigen::ArrayXd;
+using Energies_t = Eigen::ArrayXd;
 //using Names_t = std::array<10>;
 //std::string Names_t[10];
 using namespace std;
@@ -19,12 +20,14 @@ struct Atoms {
     Positions_t positions;
     Velocities_t velocities;
     Forces_t forces;
+    Energies_t energies;
 
     Atoms(Positions_t &p)
             : positions{p},
               velocities{3, p.cols()},
               forces{3, p.cols()},
-              masses{p.cols()}{
+              masses{p.cols()},
+              energies{p.cols()}{
         velocities.setZero();
         forces.setZero();
     }
@@ -32,7 +35,8 @@ struct Atoms {
             : positions{p},
               velocities{v},
               forces{3, p.cols()},
-              masses{p.cols()}{
+              masses{p.cols()},
+              energies{p.cols()}{
         velocities.setZero();
         forces.setZero();
     }

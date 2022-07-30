@@ -102,7 +102,8 @@ double gupta(Atoms &atoms, const NeighborList &neighbor_list, double cutoff, dou
             }
         }
     }
-    atoms.forces = atoms.forces/mass;
+    atoms.energies = energies;
+    atoms.forces = atoms.forces/atoms.masses;
     // Return total potential energy
-    return energies.sum();
+    return atoms.energies.sum();
 }
