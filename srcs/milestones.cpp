@@ -1,8 +1,6 @@
 #include "../header/milestones.h"
-#include <fstream>
-#include <cstdlib>
-#include <iostream>
-
+#include <list>
+using namespace std::chrono;
 using namespace Eigen;
 using std::ofstream;
 
@@ -13,10 +11,9 @@ double total_energy = 0;
 int count_relax = 0;
 int relax_value = 0;
 
-
 void milestone4()
 {
-    
+
     int steps = 10000;
     double mass = 1;
     std::ofstream outdata("../data/milestone4.dat");
@@ -65,10 +62,10 @@ void milestone4()
 
 void milestone5()
 {
-    
+
     double mass = 1;
     int steps = 5000;
-    double target_temp = 150000;
+    double target_temp = 5000;
     double boltzmann_kb = 1;
     std::ofstream outdata("../data/milestone5.dat");
 
@@ -84,23 +81,23 @@ void milestone5()
     int number = 0;
     double timestep = .001 * pow((mass * pow(sigma, 2) / eps), (1 / 2));
     int save_gap = 200;
-    
+
     for (int i = 0; i < steps; i++)
     {
         Verlet_one(timestep, atoms);
         lj_direct_summation_force(atoms);
         Verlet_two(timestep, atoms);
-        atoms.velocities = berendsen_thermostat(atoms,target_temp, timestep, 10*timestep, boltzmann_kb);        
+        atoms.velocities = berendsen_thermostat(atoms, target_temp, timestep, 10 * timestep, boltzmann_kb);
         potential = Potential(atoms);
         kinetic_energy = Kinetic(atoms);
 
-        double current_temp = (2*kinetic_energy)/3;
+        double current_temp = (2 * kinetic_energy) / 3;
         double total_energy = kinetic_energy + potential;
-        outdata                  
-                << current_temp
-                << " ,"
-                << target_temp                
-                << std::endl;
+        outdata
+            << current_temp
+            << " ,"
+            << target_temp
+            << std::endl;
 
         // save xyz file
         if (i % save_gap == 0)
@@ -110,9 +107,65 @@ void milestone5()
             number = number + 1;
         }
     }
-    
+
     outdata.close();
     std::cout << "Ran Berdendsen Thermostat successfully and output has been written to data/milestone5.dat in the format - Total Energy , Current temperature, Target temperature" << std::endl;
+}
+
+void milestone6()
+{
+    double mass = 1;
+    int steps = 1000;
+    // double target_temp = 5000;
+    double boltzmann_kb = 1;
+    std::ofstream outdata("../data/milestone6.dat");
+
+    std::list<int> rc_list = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    if (!outdata)
+    { // file couldn't be opened
+        cerr << "Error: file could not be opened" << endl;
+        exit(1);
+    }
+    auto [positions, velocities]{read_xyz_with_velocities("../../xyz/cluster_923.xyz")};
+    Atoms atoms{
+        positions, velocities};
+    atoms.masses = mass;
+    int number = 0;
+    double timestep = .001 * pow((mass * pow(sigma, 2) / eps), (1 / 2));    
+
+    for (int x : rc_list)
+    {
+        
+        auto start = high_resolution_clock::now();
+
+        NeighborList neighbor_list(x);
+        for (int i = 0; i < steps; i++)
+        {
+            Verlet_one(timestep, atoms);
+            neighbor_list.update(atoms);
+            lj_direct_summation_force(atoms);
+            Verlet_two(timestep, atoms);
+            potential = Potential(atoms);
+            kinetic_energy = Kinetic(atoms);
+            double total_energy = kinetic_energy + potential;            
+        }
+        auto stop = high_resolution_clock::now();
+        auto duration = duration_cast<microseconds>(stop - start);
+        // in milisecond
+        outdata << "[ "
+            << x
+            << " ,"
+            << duration.count()/1000
+            << " ],"
+            << std::endl;
+        
+        std::cout
+            << "Running"
+            << std::endl;
+    }
+
+    outdata.close();
+    std::cout << "Ran cutoff radius successfully and output has been written to data/milestone6.dat in the format - radius, time" << std::endl;
 }
 
 // int main(int argc, char *argv[])

@@ -10,18 +10,18 @@ const std::string filename = "/trajectory";
 const std::string file_extension = ".xyz";
 
 // Simulation Variable Declaration
-const double mass = 1; //  g/mol
-// const double mass = 196.96657 * 103.6; //  g/mol
+// const double mass = 1; //  g/mol
+const double mass = 196.96657 * 103.6; //  g/mol
 //gold = 196.96657
-const int nb_steps = 150001;
+const int nb_steps = 1000;
 const int save_every = 100;
-const int nb_atoms = 54;
+const int nb_atoms = 923;
 // const int nb_atoms = 923;
 //const int nb_atoms = 3871;
 const double Tin = 20;
-const double kb = 1; // eV/K
-// const double kb = 8.617333262 * pow(10,-5); // eV/K
-const double rc = 5;
+// const double kb = 1; // eV/K
+const double kb = 8.617333262 * pow(10,-5); // eV/K
+const double rc = 1;
 const double delQ = 30; // for 150 in EKin vs Timestep
 const int tau = 1000;
 const int measurement_gap = tau/2;
