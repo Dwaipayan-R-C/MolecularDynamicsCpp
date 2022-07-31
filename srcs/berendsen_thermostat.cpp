@@ -10,7 +10,7 @@ Eigen::Array3Xd berendsen_thermostat(Atoms &atoms, double temperature, double ti
     double vSqdSum, lambda;
     int i, j;
     vSqdSum = 0.;
-    double theoretical_kinetic = 1.5*nb_atoms*1*Tin;
+    double theoretical_kinetic = 1.5*atoms.nb_atoms()*1*Tin;
     for (i = 0; i < nb_atoms; i++) {
         for (j=0; j<3; j++) {
             vSqdSum += atoms.velocities(j,i)*atoms.velocities(j,i);

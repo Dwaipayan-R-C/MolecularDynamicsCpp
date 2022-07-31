@@ -1,6 +1,10 @@
 #include "../header/milestones.h"
+#include <fstream>
+#include <cstdlib>
+#include <iostream>
 
 using namespace Eigen;
+using std::ofstream;
 
 string names;
 double potential = 0;
@@ -8,34 +12,107 @@ double kinetic_energy = 0;
 double total_energy = 0;
 int count_relax = 0;
 int relax_value = 0;
-Positions_t positions(3, nb_atoms);
-Velocities_t velocities(3, nb_atoms);
+
 
 void milestone4()
 {
+    
+    int steps = 10000;
+    double mass = 1;
+    std::ofstream outdata("../data/milestone4.dat");
+
+    if (!outdata)
+    { // file couldn't be opened
+        cerr << "Error: file could not be opened" << endl;
+        exit(1);
+    }
     auto [positions, velocities]{read_xyz_with_velocities("../../xyz/lj54.xyz")};
     Atoms atoms{
         positions, velocities};
     atoms.masses = 1;
     int number = 0;
-    double timestep = .001 * pow((mass * pow(sigma,2)/eps),(1/2));
+    double timestep = .001 * pow((mass * pow(sigma, 2) / eps), (1 / 2));
     int save_gap = 500;
-    for (int i = 0; i < nb_steps; i++)
+    outdata << "[" << std::endl;
+    for (int i = 0; i < steps; i++)
     {
         Verlet_one(timestep, atoms);
         lj_direct_summation_force(atoms);
         Verlet_two(timestep, atoms);
+        potential = Potential(atoms);
+        kinetic_energy = Kinetic(atoms);
+        double total_energy = kinetic_energy + potential;
+        outdata << "[ " << kinetic_energy
+                << " , "
+                << potential
+                << " , "
+                << total_energy
+                << " ],"
+                << std::endl;
 
         // save xyz file
         if (i % save_gap == 0)
         {
-            write_xyz("../xyz_output/milestone4/"+filename + to_string(number) + file_extension, atoms);
-            number = number + 1;            
-            std::cout<<i<< " steps completed"<<std::endl;
-        }   
-          
+            std::cout << i << " steps completed" << std::endl;
+            write_xyz("../xyz_output/milestone4/" + filename + to_string(number) + file_extension, atoms);
+            number = number + 1;
+        }
     }
-    std::cout<<"Ran Velocity verlet successfully"<<std::endl;
+    outdata << "]" << std::endl;
+    outdata.close();
+    std::cout << "Ran Velocity verlet successfully and output has been written to data/milestone4.dat in the format - Kinetic Energy, Potential Energy, Total Energy" << std::endl;
+}
+
+void milestone5()
+{
+    
+    double mass = 1;
+    int steps = 5000;
+    double target_temp = 150000;
+    double boltzmann_kb = 1;
+    std::ofstream outdata("../data/milestone5.dat");
+
+    if (!outdata)
+    { // file couldn't be opened
+        cerr << "Error: file could not be opened" << endl;
+        exit(1);
+    }
+    auto [positions, velocities]{read_xyz_with_velocities("../../xyz/lj54.xyz")};
+    Atoms atoms{
+        positions, velocities};
+    atoms.masses = mass;
+    int number = 0;
+    double timestep = .001 * pow((mass * pow(sigma, 2) / eps), (1 / 2));
+    int save_gap = 200;
+    
+    for (int i = 0; i < steps; i++)
+    {
+        Verlet_one(timestep, atoms);
+        lj_direct_summation_force(atoms);
+        Verlet_two(timestep, atoms);
+        atoms.velocities = berendsen_thermostat(atoms,target_temp, timestep, 10*timestep, boltzmann_kb);        
+        potential = Potential(atoms);
+        kinetic_energy = Kinetic(atoms);
+
+        double current_temp = (2*kinetic_energy)/3;
+        double total_energy = kinetic_energy + potential;
+        outdata                  
+                << current_temp
+                << " ,"
+                << target_temp                
+                << std::endl;
+
+        // save xyz file
+        if (i % save_gap == 0)
+        {
+            std::cout << i << " steps completed" << std::endl;
+            write_xyz("../xyz_output/milestone5/" + filename + to_string(number) + file_extension, atoms);
+            number = number + 1;
+        }
+    }
+    
+    outdata.close();
+    std::cout << "Ran Berdendsen Thermostat successfully and output has been written to data/milestone5.dat in the format - Total Energy , Current temperature, Target temperature" << std::endl;
 }
 
 // int main(int argc, char *argv[])

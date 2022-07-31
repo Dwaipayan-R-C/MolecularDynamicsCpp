@@ -15,7 +15,7 @@
  * Verlet_one is the prediction step with updated position and velocity by dt/2
  * Argument - timestep, Atoms
  */
-void initialize(Atoms &atoms);
+
 void Verlet_one(double dt, Atoms &atoms);
 
 
