@@ -5,17 +5,17 @@
 
 #ifndef YAMD_ATOM_STRUCTURE_H
 #define YAMD_ATOM_STRUCTURE_H
+
 using Positions_t = Eigen::Array3Xd;
 using Velocities_t = Eigen::Array3Xd;
 using Forces_t = Eigen::Array3Xd;
 using Masses_t = Eigen::ArrayXd;
 using Energies_t = Eigen::ArrayXd;
-//using Names_t = std::array<10>;
-//std::string Names_t[10];
+
+
 using namespace std;
 
 struct Atoms {
-//    Names_t atom_name ;
     Masses_t masses;
     Positions_t positions;
     Velocities_t velocities;

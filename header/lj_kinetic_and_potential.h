@@ -11,13 +11,13 @@
  * Function to calculate the Kinetic energy of the atoms
  * Argument - Atoms
  */
-double Kinetic(Atoms &atoms) ;
+double Kinetic(Atoms &atoms, double rc, double eps, double sigma) ;
 
 /*
  * Function to calculate the Lennard Jones Potential energy of the atoms
  * Argument - Atoms
  */
-double Potential(Atoms &atoms);
+double Potential(Atoms &atoms, double rc, double eps, double sigma);
 
 
 #endif //YAMD_LJ_KINETIC_AND_POTENTIAL_H
