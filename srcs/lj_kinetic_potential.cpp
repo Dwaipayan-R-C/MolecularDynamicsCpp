@@ -7,7 +7,7 @@
 
 // Function to calculate kinetic energy of the system
 //  Function to calculate the kinetic energy of the system
-double Kinetic(Atoms &atoms) {
+double Kinetic(Atoms &atoms, double rc, double eps, double sigma) {
 
     double v2, kin;
     kin = 0.;
@@ -18,7 +18,7 @@ double Kinetic(Atoms &atoms) {
         for (int j = 0; j < 3; j++) {
             v2 += atoms.velocities(j, i) * atoms.velocities(j, i);
         }
-        kin += mass * v2 / 2.;
+        kin += atoms.masses(0) * v2 / 2.;
     }
 
     return kin;
@@ -26,7 +26,7 @@ double Kinetic(Atoms &atoms) {
 
 
 // Function to calculate the potential energy of the system
-double Potential(Atoms &atoms) {
+double Potential(Atoms &atoms, double rc, double eps, double sigma) {
     double quot, r2, rnorm, term1, term2, Pot;
     int i, j, k;
 

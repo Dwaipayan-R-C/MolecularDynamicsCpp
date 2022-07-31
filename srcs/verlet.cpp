@@ -6,33 +6,7 @@
 
 using namespace Eigen;
 
-void initialize(Atoms &atoms) {
-    int n, p, i, j, k;
-    double pos;
 
-    // Number of atoms in each direction
-    n = int(ceil(pow(nb_atoms, 1.0/3)));
-
-    //  spacing between atoms along a given direction
-    pos = 20 / n;
-
-    //  index for number of particles assigned positions
-    p = 0;
-    //  initialize positions
-    for (i=0; i<n; i++) {
-        for (j=0; j<n; j++) {
-            for (k=0; k<n; k++) {
-                if (p<nb_atoms) {
-
-                    atoms.positions(0,p) = (i + 0.5)*pos;
-                    atoms.positions(1,p) = (j + 0.5)*pos;
-                    atoms.positions(2,p) = (k + 0.5)*pos;
-                }
-                p++;
-            }
-        }
-    }
-}
 void Verlet_one(double dt, Atoms &atoms) {
     int i;
     //  Update positions and velocity with current velocity and acceleration

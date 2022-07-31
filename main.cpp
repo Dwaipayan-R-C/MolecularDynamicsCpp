@@ -2,19 +2,12 @@
 
 using namespace std;
 
-int main(){
-
-        // Milestone 4
+int main(int argc, char *argv[])
+{
         // milestone4();
-
-
-        // Milestone 5
         // milestone5();
-
-
-        // Milestone 5
         milestone6();
-
-
+        // milestone7();
+        // milestone8(argc, argv);
         return 0;
 }

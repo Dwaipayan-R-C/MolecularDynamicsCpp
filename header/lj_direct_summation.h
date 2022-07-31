@@ -11,7 +11,7 @@ using namespace Eigen;
 #ifndef YAMD_LJ_DIRECT_SUMMATION_H
 #define YAMD_LJ_DIRECT_SUMMATION_H
 
-void lj_direct_summation_force(Atoms &atoms);
+void lj_direct_summation_force(Atoms &atoms,  double rc, double eps, double sigma);
 #endif //YAMD_LJ_DIRECT_SUMMATION_H
 //#include "Eigen/Core"
 //#include "variable_def.h"

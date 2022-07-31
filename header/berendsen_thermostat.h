@@ -9,6 +9,6 @@
 #define YAMD_BERENDSEN_THERMOSTAT_H
 
 Eigen::Array3Xd berendsen_thermostat(Atoms &atoms, double temperature, double timestep,
-                                     double relaxation_time, double kb);
+                                     double relaxation_time, double kb, double Tin);
 
 #endif //YAMD_BERENDSEN_THERMOSTAT_H
