@@ -199,7 +199,7 @@ void milestone7(int steps, double mass, double delQ, double boltzmann_kb, double
         cerr << "Error: file could not be opened" << endl;
         exit(1);
     }
-    auto [positions, velocities]{read_xyz_with_velocities("../xyz/cluster_3871.xyz")};
+    auto [positions, velocities]{read_xyz_with_velocities("../xyz/cluster_13.xyz")};
     Atoms atoms{
         positions};
     atoms.velocities = 0;
