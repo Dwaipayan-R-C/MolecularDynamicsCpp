@@ -9,10 +9,10 @@ from scipy.ndimage.filters import gaussian_filter1d
 def Extract(lst, index):
     return [item[index] for item in lst]
 
-atoms_num = 3871
+atoms_num = 923
 timestep_1 = 2 
-tau = 600 * timestep_1
-delQ = 230 #eV
+tau = 1000 * timestep_1
+delQ = 10 #eV
 
 
 list_val = [
@@ -60,10 +60,7 @@ list_val = [
 [ -3090.85 ,1314.06 ],
 [ -3084.9 ,1349.26 ],
 [ -3076.16 ,1360.53 ],
-[ -3074.13 ,1427.24 ],
-[ -3061 ,1402.58 ],
-[ -3053.9 ,1428.17 ],
-[ -3049.9 ,1478.74 ],
+
 #endRegion
 ]
 
@@ -76,8 +73,8 @@ xnew, y_smooth = spl(np.linspace(0, 1, len(x_axis) * 100)).T #(2)
 plt.plot(xnew, y_smooth, color='red')
 plt.scatter(x_axis, y_axis, color="black")
 plt.xlabel("Temperature (K)")
-plt.ylabel("Potential Energy (eV)")
-plt.suptitle(f"Potential Energy vs Temperature ( {atoms_num} atoms )")
+plt.ylabel("Total Energy (eV)")
+plt.suptitle(f"Total Energy vs Temperature ( {atoms_num} atoms )")
 plt.title(f"Tau = {tau} fs, timestep = {timestep_1} fs, ΔQ = {delQ} eV")
 # plt.plot(x_axis,y_axis, color='crimson')
 # plt.plot(x_axis,f2)
@@ -87,8 +84,8 @@ plt.grid()
 
 # Save fig
 
-path = os.path.join(f"plot_code/{atoms_num} atoms")
-save_path = os.path.join(path,f"{tau}_{timestep_1}_{delQ}_PotentialEnergyVsTemperature.png")
+path = os.path.join(f"plot_code/cluster_sizes")
+save_path = os.path.join(path,f"{atoms_num}_Energy_Temp.png")
 os.makedirs(path, exist_ok=True)
 # plt.text(x_axis[0],-3100,f'Heat Capacity - {heat_cap} eV/K \nMelting point - 750 K \nLatent heat - 127.5 eV' ,fontsize=10, bbox=dict(facecolor='red', alpha=0.5) )
 # plt.xticks(np.arange(min(x_axis), max(x_axis)+1, 200))
