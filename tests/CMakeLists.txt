@@ -11,6 +11,11 @@ include_directories(SYSTEM ${MPI_INCLUDE_PATH})
 set(myproject_tests_SRCS
         ${CMAKE_CURRENT_SOURCE_DIR}/test_hello_world.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/verlet_test.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/neighbor_list_test.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lj_test.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/embedded_atom_potential.cpp
+
+        
         )
 
 # Tests

@@ -4,7 +4,7 @@
 
 
 
-TEST(VerletTest, SingleAtomVerletConstantForce)
+TEST(VerletTest, SingleAtom)
 {
     //single Atom test
     int nbAtoms = 1;
@@ -33,7 +33,7 @@ TEST(VerletTest, SingleAtomVerletConstantForce)
 }
 
 
-TEST(VerletTest, MultipleAtomVerletConstantForce)
+TEST(VerletTest, MultipleAtom)
 {
     //single Atom test
     int nbAtoms = 10;
