@@ -30,6 +30,7 @@ struct Atoms {
               energies{p.cols()}{
         velocities.setZero();
         forces.setZero();
+        energies.setZero();
     }
     Atoms(Positions_t &p, Velocities_t &v)
             : positions{p},
@@ -39,12 +40,14 @@ struct Atoms {
               energies{p.cols()}{
         velocities.setZero();
         forces.setZero();
+        energies.setZero();
     }
     void resize(const int size){
         positions.conservativeResize(3, size);
         velocities.conservativeResize(3, size);
         forces.conservativeResize(3, size);
         masses.conservativeResize(size);
+        energies.conservativeResize(size);
     }
     Atoms(const Positions_t &p, double mass) :
             positions{p}, velocities{3, p.cols()}, forces{3, p.cols()} {
