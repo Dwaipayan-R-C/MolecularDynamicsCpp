@@ -10,7 +10,7 @@
 double Kinetic(Atoms &atoms, double rc, double eps, double sigma) {
 
     double v2, kin;
-    
+    atoms.kin_energy.setZero();
     kin = 0.;
 
     for (int i = 0; i < atoms.nb_atoms(); i++) {

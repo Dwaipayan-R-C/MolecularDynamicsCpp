@@ -17,7 +17,7 @@ void milestone4(int steps, double mass, double sigma, double eps, int save_gap,
         cerr << "Error: file could not be opened" << endl;
         exit(1);
     }
-    auto [positions, velocities]{read_xyz_with_velocities("../xyz/lj54.xyz")};
+    auto [positions, velocities]{read_xyz_with_velocities("../xyz/cluster_923.xyz")};
     Atoms atoms{positions, velocities};
     atoms.masses = 1;
     double timestep = .001 * pow((mass * pow(sigma, 2) / eps), (1 / 2));
@@ -179,7 +179,7 @@ void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
         exit(1);
     }
     auto [positions,
-          velocities]{read_xyz_with_velocities("../xyz/cluster_147.xyz")};
+          velocities]{read_xyz_with_velocities("../xyz/cluster_923.xyz")};
     Atoms atoms{positions};
     atoms.velocities = 0;
     atoms.masses = mass;
@@ -191,10 +191,10 @@ void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
         Verlet_one(timestep, atoms);
         neighbor_list.update(atoms);
         potential = gupta(atoms, neighbor_list, rc);
-        potential = atoms.energies.sum();
+        // potential = atoms.energies.sum();
         Verlet_two(timestep, atoms);
         kinetic_energy = Kinetic(atoms, rc, eps, sigma);
-        double total_energy = kinetic_energy + potential;
+        double total_energy = kinetic_energy + potential;      
 
         // save xyz file
         if (i % save_every == 0) {
@@ -276,22 +276,21 @@ void milestone8(int argc, char *argv[], int steps, double mass, double timestep,
         int rank;
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);    
             
-        domain.enable(atoms);   
-             
+        domain.enable(atoms);             
         Verlet_one(timestep, atoms);
         neighbor_list.update(atoms);
         domain.exchange_atoms(atoms);
         double global_kinetic = 0;
-        kinetic_energy = Kinetic(atoms,rc,eps,sigma);
-        double local_kinetic = atoms.kin_energy.sum();        
+        // kinetic_energy = Kinetic(atoms,rc,eps,sigma);
+        // double local_kinetic = atoms.kin_energy.sum();        
         domain.update_ghosts(atoms, 2 * rc);        
         potential = gupta(atoms, neighbor_list, rc);        
-        Verlet_two(timestep, atoms);        
-        double global_potential = 0;
-        
-        double local_potential = atoms.energies.sum();
-        
-        // double local_kinetic = Kinetic(atoms, rc, eps, sigma);      
+        Verlet_two(timestep, atoms);   
+        domain.exchange_atoms(atoms);     
+        double global_potential = 0;        
+        double local_potential = atoms.energies.sum();        
+        double local_kinetic = Kinetic(atoms, rc, eps, sigma); 
+        local_kinetic = atoms.kin_energy.sum();     
         
         MPI_Reduce(&local_potential, &global_potential, 1, MPI_DOUBLE, MPI_SUM,
                    0, MPI_COMM_WORLD);
@@ -299,19 +298,20 @@ void milestone8(int argc, char *argv[], int steps, double mass, double timestep,
         MPI_Reduce(&local_kinetic, &global_kinetic, 1, MPI_DOUBLE, MPI_SUM, 0,
                    MPI_COMM_WORLD);
         // kinetic_energy = Kinetic(atoms, rc, eps, sigma);
-        std::cout<<"["<<rank<<" , "<<atoms.kin_energy.sum()<<"],"<<std::endl;
-        domain.disable(atoms);
+        // std::cout<<"["<<rank<<" , "<<global_kinetic<<"],"<<std::endl;
+        
         // double local_kinetic = atoms.kin_energy.sum();     
         
         // std::cout<<"["<<rank<<" , "<<atoms.kin_energy.sum()<<"],"<<std::endl;
-        // if(rank == 0){
-        //     double total_energy = global_kinetic + global_potential;
-        //     std::cout<<"["<<i<<" , "<<global_potential<<"],"<<std::endl;
-        //     // std::cout<<"["<<i<<" , "<<total_energy<<"],"<<std::endl;
-        // }
-        
+        if(rank == 0){
+            double total_energy = global_potential + global_kinetic;
+            std::cout<<"["<<i<<" , "<<total_energy<<"],"<<std::endl;
+            outdata<<"["<<i<<" , "<<global_potential<<"],"<<std::endl;
+        }        
         number = number + 1;
+        domain.disable(atoms);
     }
+    
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
 
