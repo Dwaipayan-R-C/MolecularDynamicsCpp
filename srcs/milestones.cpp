@@ -272,45 +272,47 @@ void milestone8(int argc, char *argv[], int steps, double mass, double timestep,
     
     auto start = high_resolution_clock::now();
     NeighborList neighbor_list(rc);
-    for (int i = 0; i < steps; i++) {
-        int rank;
-        MPI_Comm_rank(MPI_COMM_WORLD, &rank);    
-            
-        domain.enable(atoms);             
+    domain.enable(atoms); //divides into subdomains
+    for (int i = 0; i < steps; i++) {                  
+               
         Verlet_one(timestep, atoms);
-        neighbor_list.update(atoms);
+        // Neighbour list looks for ghost nodes which is why we exchange atoms and updates ghost nodes.
         domain.exchange_atoms(atoms);
-        double global_kinetic = 0;
-        // kinetic_energy = Kinetic(atoms,rc,eps,sigma);
-        // double local_kinetic = atoms.kin_energy.sum();        
-        domain.update_ghosts(atoms, 2 * rc);        
-        potential = gupta(atoms, neighbor_list, rc);        
+        domain.update_ghosts(atoms, 2 * rc);
+        neighbor_list.update(atoms);
+        potential = gupta(atoms, neighbor_list, rc);
         Verlet_two(timestep, atoms);   
-        domain.exchange_atoms(atoms);     
-        double global_potential = 0;        
-        double local_potential = atoms.energies.sum();        
-        double local_kinetic = Kinetic(atoms, rc, eps, sigma); 
-        local_kinetic = atoms.kin_energy.sum();     
+        kinetic_energy = Kinetic(atoms, rc, eps, sigma);   
+        double global_potential = 0;  
+        double global_kinetic = 0;  
+        double local_kinetic = 0;
+        double local_potential = 0;
+        for(int k=0;k<domain.nb_local();k++){
+            local_potential += atoms.energies(k);
+            local_kinetic += atoms.kin_energy(k);
+        }                     
         
         MPI_Reduce(&local_potential, &global_potential, 1, MPI_DOUBLE, MPI_SUM,
                    0, MPI_COMM_WORLD);
 
         MPI_Reduce(&local_kinetic, &global_kinetic, 1, MPI_DOUBLE, MPI_SUM, 0,
                    MPI_COMM_WORLD);
-        // kinetic_energy = Kinetic(atoms, rc, eps, sigma);
-        // std::cout<<"["<<rank<<" , "<<global_kinetic<<"],"<<std::endl;
         
-        // double local_kinetic = atoms.kin_energy.sum();     
+        domain.disable(atoms);         
         
-        // std::cout<<"["<<rank<<" , "<<atoms.kin_energy.sum()<<"],"<<std::endl;
-        if(rank == 0){
+        if (i % save_every == 0 && domain.rank() == 0) {
             double total_energy = global_potential + global_kinetic;
-            std::cout<<"["<<i<<" , "<<total_energy<<"],"<<std::endl;
-            outdata<<"["<<i<<" , "<<global_potential<<"],"<<std::endl;
-        }        
-        number = number + 1;
-        domain.disable(atoms);
+            outdata<<"["<<global_potential<<" , "<<global_kinetic<<" , "<<total_energy<<"],"<<std::endl;
+            std::cout<<"["<<global_potential<<" , "<<global_kinetic<<" , "<<total_energy<<"],"<<std::endl;
+            write_xyz("../xyz_output/milestone8/" + filename +
+                          to_string(number) + file_extension,
+                      atoms);
+            number = number + 1;
+        }
+        domain.enable(atoms);
+        
     }
+    
     
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
