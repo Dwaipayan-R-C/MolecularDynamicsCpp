@@ -12,7 +12,6 @@ using Forces_t = Eigen::Array3Xd;
 using Masses_t = Eigen::ArrayXd;
 using Energies_t = Eigen::ArrayXd;
 
-
 using namespace std;
 
 struct Atoms {
@@ -21,39 +20,51 @@ struct Atoms {
     Velocities_t velocities;
     Forces_t forces;
     Energies_t energies;
+    Energies_t kin_energy;
 
     Atoms(Positions_t &p)
-            : positions{p},
-              velocities{3, p.cols()},
-              forces{3, p.cols()},
-              masses{p.cols()},
-              energies{p.cols()}{
+        : positions{p},
+          velocities{3, p.cols()},
+          forces{3, p.cols()},
+          masses{p.cols()},
+          energies{p.cols()},
+          kin_energy{p.cols()} {
         velocities.setZero();
         forces.setZero();
+        energies.setZero();
+        kin_energy.setZero();
     }
     Atoms(Positions_t &p, Velocities_t &v)
-            : positions{p},
-              velocities{v},
-              forces{3, p.cols()},
-              masses{p.cols()},
-              energies{p.cols()}{
+        : positions{p},
+          velocities{v},
+          forces{3, p.cols()},
+          masses{p.cols()},
+          energies{p.cols()},
+          kin_energy{p.cols()} {
         velocities.setZero();
         forces.setZero();
+        energies.setZero();
+        kin_energy.setZero();
     }
-    void resize(const int size){
+    void resize(const int size) {
         positions.conservativeResize(3, size);
         velocities.conservativeResize(3, size);
         forces.conservativeResize(3, size);
         masses.conservativeResize(size);
+        energies.conservativeResize(size);
+        kin_energy.conservativeResize(size);
     }
-    Atoms(const Positions_t &p, double mass) :
-            positions{p}, velocities{3, p.cols()}, forces{3, p.cols()} {
+    Atoms(const Positions_t &p, double mass)
+        : positions{p},
+          velocities{3, p.cols()},
+          forces{3, p.cols()} {
         velocities.setZero();
         forces.setZero();
         masses.setConstant(mass);
     }
 
     Eigen::Index nb_atoms() const {
-        return positions.cols();        }
+        return positions.cols();
+    }
 };
-#endif //YAMD_ATOM_STRUCTURE_H
+#endif // YAMD_ATOM_STRUCTURE_H
