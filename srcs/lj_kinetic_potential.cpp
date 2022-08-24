@@ -15,13 +15,11 @@ double Kinetic(Atoms &atoms, double rc, double eps, double sigma) {
 
     for (int i = 0; i < atoms.nb_atoms(); i++) {
         v2 = 0.;
-
         for (int j = 0; j < 3; j++) {
             v2 += atoms.velocities(j, i) * atoms.velocities(j, i);
             atoms.kin_energy(i) += 0.5 * atoms.masses(i)*atoms.velocities(j, i) * atoms.velocities(j, i);
         }        
-        kin += atoms.masses(0) * v2 / 2.;
-        
+        kin += atoms.masses(0) * v2 / 2.;        
     }
     
     return atoms.kin_energy.sum();
