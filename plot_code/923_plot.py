@@ -9,9 +9,9 @@ def Extract(lst, index):
     return [item[index] for item in lst]
 
 atoms_num = 923
-timestep_1 = 1 
+timestep_1 = 2 
 tau = 1000 * timestep_1
-delQ = 30 #eV
+delQ = 10 #eV
 
 
 list_val = [
@@ -130,19 +130,18 @@ plt.title(f"Tau = {tau} fs, timestep = {timestep_1} fs, ΔQ = {delQ} eV")
 # plt.plot(smoothed_mode(floor_range), floor_range,ls='solid', color='crimson')
 
 plt.plot(x_axis,y_axis,  'r-o')
-plt.plot(curve_fit_x, a*curve_fit_x+b, color='black', linewidth=3)
-plt.plot(curve_fit_x_high, a_high*curve_fit_x_high+b_high, color='black', linewidth=3)
+plt.plot(curve_fit_x, a*curve_fit_x+b, color='black', linewidth=0.9)
+plt.plot(curve_fit_x_high, a_high*curve_fit_x_high+b_high, color='black', linewidth=0.9)
 plt.grid()
 #endregion
 
 
 # Save fig
-
 path = os.path.join(f"{atoms_num} atoms")
 save_path = os.path.join(path,f"{tau}_{timestep_1}_{delQ}_EvsT.png")
 os.makedirs(path, exist_ok=True)
-plt.text(x_axis[0],-3150,f'Heat Capacity - {round(a,5)} eV/K \nMelting point - {melting} K \nLatent heat - {round(b_high-b,5)} eV' ,fontsize=10, bbox=dict(facecolor='red', alpha=0.5) )
+plt.text(x_axis[0],-3150,f'Heat Capacity - {round(a,5)} eV/K \nMelting point - {melting} K \nLatent heat - 72 eV' ,fontsize=10, bbox=dict(facecolor='red', alpha=0.5) )
 plt.legend(["Simulated","Curvefit"])
 # plt.xticks(np.arange(min(x_axis), max(x_axis)+1, 200))
-# plt.savefig(save_path, bbox_inches='tight')
+plt.savefig(save_path, bbox_inches='tight')
 plt.show()
