@@ -260,12 +260,7 @@ void milestone7_heatCap(int steps, double mass, double boltzmann_kb,
     double temp_temp = 0;
     double energy_temp = 0;
 
-    // std::vector<int> cluster_size{13,   55,   147,  309,  923,
-    //                                2869, 3871, 8217, 10179};
-    // std::vector<double> delQ{0.03, 0.3, 0.5, 1.5, 10, 50, 80, 120, 120};
-    // std::vector<int> cluster_size = {13,   55,   147,  309,  923,
-    //                                2869, 3871, 8217, 10179};
-    // std::vector<double> delQ = {0.03, 0.3, 0.5, 1.5, 10, 50, 80, 120, 120};
+    
     std::ofstream outdata("../data/milestone7_heatcap.dat");
 
     if (!outdata) { // file couldn't be opened
@@ -423,3 +418,52 @@ void milestone8(int argc, char *argv[], int steps, double mass, double timestep,
                  "-  Average Total Energy (eV) vs Average temperature"
               << std::endl;
 }
+
+void lj_potential_distance(int steps, double mass, double sigma, double eps, int save_gap,
+                double rc){
+                    double potential = 0;
+    double kinetic_energy = 0;
+    double total_energy = 0;
+    int number = 0;
+
+    std::ofstream outdata("../data/lj_distance.dat");
+
+    if (!outdata) { // file couldn't be opened
+        cerr << "Error: file could not be opened" << endl;
+        exit(1);
+    }
+    int nbAtoms = 2;
+    Positions_t positions(3, nbAtoms);
+    Atoms atoms = {positions};  
+    atoms.masses = 1;  
+    atoms.positions(0,0) = 0;       
+    atoms.positions(0,1) = 1; 
+    // atoms.forces = 0;      
+    atoms.masses = 1;
+    double timestep = .0001 * pow((mass * pow(sigma, 2) / eps), (1 / 2));  
+    atoms.velocities = 0;
+    for (int i = 0; i < steps; i++) {
+        Verlet_one(timestep, atoms);       
+        lj_direct_summation_force(atoms, rc, eps, sigma);       
+        Verlet_two(timestep, atoms);       
+        potential = Potential(atoms, rc, eps, sigma);       
+        kinetic_energy = Kinetic(atoms, rc, eps, sigma);       
+        double total_energy = kinetic_energy + potential;
+        
+        std::cout  << atoms.positions(0,0)  << " , "<<atoms.positions(0,1)<< std::endl;
+        // std::cout  << potential  << std::endl;
+        outdata << "[ " << atoms.positions(0,1) + atoms.positions(0,1) << " , " << potential << " , "
+                << total_energy << " ]," << std::endl;
+        // atoms.positions(0,1) += 0.5;
+        // save xyz file
+        if (i % save_gap == 0) {
+            
+            write_xyz("../xyz_output/lj_distance/" + filename +
+                          to_string(number) + file_extension,
+                      atoms);
+            number = number + 1;
+        }
+    }
+
+    outdata.close();    
+                }
