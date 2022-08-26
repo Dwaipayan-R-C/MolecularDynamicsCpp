@@ -467,3 +467,57 @@ void lj_potential_distance(int steps, double mass, double sigma, double eps, int
 
     outdata.close();    
                 }
+
+void energy_drift(int steps, double mass, double boltzmann_kb,
+                double timestep, double rc, 
+                double sigma, double eps) {
+    
+    
+    double potential = 0;
+    double kinetic_energy = 0;
+    double total_energy = 0;
+    double temperature = 0;
+    double totalEnergy = 0;
+    int j =-1;
+    int k = 0;
+    double alpha = 0;
+    double energy_drift = 0;
+    std::ofstream outdata("../data/energy_drift.dat");
+
+    if (!outdata) { // file couldn't be opened
+        cerr << "Error: file could not be opened" << endl;
+        exit(1);
+    }
+    auto [positions,
+          velocities]{read_xyz_with_velocities("../xyz/cluster_923.xyz")};
+    Atoms atoms{positions};
+    atoms.velocities = 0;
+    atoms.masses = mass;
+    double init_total=0;
+    NeighborList neighbor_list(rc);
+    for (int i = 0; i < steps; i++) {
+        Verlet_one(timestep, atoms);
+        neighbor_list.update(atoms);
+        potential = gupta(atoms, neighbor_list, rc);        
+        Verlet_two(timestep, atoms);
+        kinetic_energy = Kinetic(atoms, rc, eps, sigma);
+        double total_energy = kinetic_energy + potential;
+        if (j==-1){
+            init_total = total_energy;            
+            j++;
+        }else{            
+            energy_drift = (total_energy-init_total)/init_total;
+            outdata << "[ " <<energy_drift << " ,"
+                    << (i+1)*timestep << " ]," << std::endl; 
+            init_total = total_energy;      
+        }
+        
+         
+    }    
+    outdata.close();
+
+    std::cout << "Embedded Atom potential ran successfully " << std::endl;
+    std::cout << "Output has been written to data/milestone7.dat in the format "
+                 "-  Average Total Energy (eV) vs Average temperature"
+              << std::endl;
+}        

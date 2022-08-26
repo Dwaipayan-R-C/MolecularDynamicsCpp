@@ -5,7 +5,8 @@ using namespace std;
 int main(int argc, char *argv[])
 {
         // cout<<"Hello world"<<endl;
-        lj_potential_distance();
+        energy_drift();
+        // lj_potential_distance();
         // milestone4();
         // milestone5();
         // milestone6();
