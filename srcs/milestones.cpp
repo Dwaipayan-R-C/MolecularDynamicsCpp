@@ -489,7 +489,7 @@ void energy_drift(int steps, double mass, double boltzmann_kb,
         exit(1);
     }
     auto [positions,
-          velocities]{read_xyz_with_velocities("../xyz/cluster_923.xyz")};
+          velocities]{read_xyz_with_velocities("../xyz/cluster_3871.xyz")};
     Atoms atoms{positions};
     atoms.velocities = 0;
     atoms.masses = mass;
