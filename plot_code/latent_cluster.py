@@ -9,8 +9,7 @@ def Extract(lst, index):
 project_path = os. getcwd()
 
 list_val = [
-[ 13 ,0.37 ],
-[ 55 ,2 ],
+
 [ 147 ,5 ],
 [ 309 ,20 ],
 [ 923 ,50 ],
@@ -33,12 +32,12 @@ plt.plot(xnew, power_smooth, color='brown')
 # plt.yscale('log')
 plt.scatter(x_axis,y_axis, color='black')
 plt.xlabel('Cluster size')
-plt.ylabel(r'Latent heat (eV/)')
+plt.ylabel(r'Latent heat (eV)')
 plt.title('Latent heat vs cluster size')
 plt.grid(True,which="both")
 path = "plot_code/milestone_plots/"
 save_path = os.path.join(path,f"latent_cluster_lin.png")
 plt.legend(['Curvefit','Real data'])
 os.makedirs(path, exist_ok=True)
-# plt.show()
-plt.savefig(save_path, pad_inches=1)
+plt.show()
+# plt.savefig(save_path, pad_inches=1)

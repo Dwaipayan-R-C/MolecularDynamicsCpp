@@ -7,23 +7,20 @@ def Extract(lst, index):
     return [item[index] for item in lst]
 
 project_path = os. getcwd()
-
 list_val = [
-[ 13 ,0.00190055 ],
-[ 55 ,0.0128615 ],
-[ 147 ,0.0384226 ],
-[ 309 ,0.111419 ],
-[ 923 ,0.196057 ],
-[ 2869 ,1.71892 ],
-[ 3871 ,0.882341 ],
-[ 5083 ,1.49819 ],
-[ 8217 ,1.37581 ],
-[ 10179 ,1.48248 ],
+[ 147 ,0.0401395 ],
+[ 309 ,0.0750794 ],
+[ 923 ,0.251404 ],
+[ 3871 ,1.02131 ],
+[ 5083 ,1.58772 ],
+[ 8217 ,2.00217 ],
+[ 10179 ,2.98684 ],
 ]
 
 #region plot start
 x_axis = np.array(Extract(list_val,0))
 y_axis = np.array(Extract(list_val,1))
+
 xnew = np.linspace(x_axis.min(), x_axis.max(), 300) 
 
 spl = make_interp_spline(x_axis, y_axis, k=2)  # type: BSpline
@@ -41,5 +38,5 @@ path = "plot_code/milestone_plots/"
 save_path = os.path.join(path,f"heatcap_cluster_lin.png")
 plt.legend(['Curvefit','Real data'])
 os.makedirs(path, exist_ok=True)
-# plt.show()
+plt.show()
 plt.savefig(save_path, pad_inches=1)

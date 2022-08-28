@@ -12,87 +12,103 @@ def Extract(lst, index):
 atoms_num = 10179
 timestep_1 = 2 
 tau = 1000 * timestep_1
-delQ = 120 #eV
+delQ = 190 #eV
 
 
 list_val = [
 #region start
-[ -37442.9 ,183.08 ],
-[ -37375.9 ,224.772 ],
-[ -37374.8 ,306.14 ],
-[ -37333.2 ,361.58 ],
-[ -37179.5 ,340.769 ],
-[ -37183.4 ,434.714 ],
-[ -37138.3 ,489.141 ],
-[ -37034.2 ,507.186 ],
-[ -36906.5 ,505.943 ],
-[ -36900.9 ,589.586 ],
-[ -36876.3 ,658.633 ],
-[ -36762 ,666.783 ],
-[ -36652.9 ,677.574 ],
-[ -36614.4 ,738.176 ],
-[ -36553.8 ,783.536 ],
-[ -36461.3 ,805.75 ],
-[ -36380.2 ,835.785 ],
-[ -36296.3 ,864.054 ],
-[ -36216.5 ,894.978 ],
-[ -36130.4 ,921.141 ],
-[ -36020.8 ,930.029 ],
-[ -35919.4 ,944.739 ],
-[ -35820.2 ,961.1 ],
-[ -35697.4 ,959.828 ],
-[ -35584.3 ,965.806 ],
-[ -35481.3 ,979.1 ],
-[ -35364.4 ,982.37 ],
-[ -35279 ,1009.03 ],
-[ -35203.3 ,1043.35 ],
-[ -35110.2 ,1064.89 ],
-[ -35038.5 ,1101.78 ],
-[ -34960 ,1133.89 ],
-[ -34880.5 ,1165.35 ],
-[ -34809.5 ,1203.02 ],
-[ -34726.8 ,1232.17 ],
-[ -34658 ,1271.58 ],
-[ -34565.7 ,1293.42 ],
-[ -34510 ,1342.75 ],
-[ -34429.6 ,1373.47 ],
-[ -34351.2 ,1405.66 ],
-[ -34290.4 ,1451.14 ],
-[ -34206 ,1479.09 ],
-[ -34125 ,1509.42 ],
-
-
-
+[ -37202 ,183.08 ],
+[ -37009.2 ,243.961 ],
+[ -36830.1 ,354.09 ],
+[ -36646.2 ,451.987 ],
+[ -36446.6 ,455.181 ],
+[ -36255.4 ,537.448 ],
+[ -36068.7 ,622.115 ],
+[ -35873.4 ,656.48 ],
+[ -35680.6 ,697.632 ],
+[ -35494.4 ,814.202 ],
+[ -35302.4 ,854.839 ],
+[ -35108.4 ,855.206 ],
+[ -34918.9 ,925.177 ],
+[ -34728.1 ,966.904 ],
+[ -34535.7 ,962.687 ],
+[ -34344.2 ,987.116 ],
+[ -34153.2 ,1003.85 ],
+[ -33961.8 ,1020.98 ],
+[ -33770.2 ,1051.45 ],
+[ -33579.5 ,1109.24 ],
+[ -33387.8 ,1155.74 ],
+[ -33196.8 ,1209.03 ],
+[ -33005.3 ,1263.49 ],
+[ -32814.2 ,1316.43 ],
 
 
 
 #endRegion
 ]
 
+curve_list_1 = [
+#region start
+[ -36068.7 ,622.115 ],
+[ -35873.4 ,656.48 ],
+[ -35680.6 ,697.632 ],
+[ -35494.4 ,814.202 ],
+[ -35302.4 ,854.839 ],
+[ -35108.4 ,855.206 ],
+[ -34918.9 ,925.177 ],
+[ -34728.1 ,966.904 ],
+#endRegion
+]
+
+curve_list_2 = [
+#region start
+[ -33961.8 ,1020.98 ],
+[ -33770.2 ,1051.45 ],
+[ -33579.5 ,1109.24 ],
+[ -33387.8 ,1155.74 ],
+[ -33196.8 ,1209.03 ],
+[ -33005.3 ,1263.49 ],
+[ -32814.2 ,1316.43 ],
+
+#endRegion
+]
+
+melting = np.array(Extract(curve_list_1,1))[-1]
 #region plot start
 x_axis = Extract(list_val,1)
 y_axis = Extract(list_val,0)
-param = np.linspace(0, 1, len(x_axis))
-spl = make_interp_spline(param, np.c_[x_axis,y_axis], k=2) #(1)
-xnew, y_smooth = spl(np.linspace(0, 1, len(x_axis) * 100)).T #(2)
-plt.plot(xnew, y_smooth, color='red')
-plt.scatter(x_axis, y_axis, color="black")
+
+
+curve_fit_x = np.array(Extract(curve_list_1,1))
+curve_fit_y = np.array(Extract(curve_list_1,0))
+curve_fit_x_high = np.array(Extract(curve_list_2,1))
+curve_fit_y_high = np.array(Extract(curve_list_2,0))
+
+a, b = np.polyfit(curve_fit_x, curve_fit_y, 1)
+a_high, b_high = np.polyfit(curve_fit_x_high, curve_fit_y_high, 1)
+
 plt.xlabel("Temperature (K)")
 plt.ylabel("Total Energy (eV)")
 plt.suptitle(f"Total Energy vs Temperature ( {atoms_num} atoms )")
 plt.title(f"Tau = {tau} fs, timestep = {timestep_1} fs, ΔQ = {delQ} eV")
-# plt.plot(x_axis,y_axis, color='crimson')
-# plt.plot(x_axis,f2)
+# plt.legend(f"{timestep_1} fs", loc = 2)
+# plt.plot(smoothed_mode(floor_range), floor_range,ls='solid', color='crimson')
 
+plt.plot(x_axis,y_axis, color = 'brown')
+plt.scatter(x_axis,y_axis,  color = 'black')
+plt.plot(curve_fit_x, a*curve_fit_x+b, color='blue', linewidth=1.5)
+plt.plot(curve_fit_x_high, a_high*curve_fit_x_high+b_high, color='blue', linewidth=1.5)
 plt.grid()
 #endregion
 
-# Save fig
-
+path = os.path.join(f"{atoms_num} atoms")
+save_path = os.path.join(path,f"{tau}_{timestep_1}_{delQ}_EvsT.png")
+os.makedirs(path, exist_ok=True)
+plt.text(x_axis[0],-34000,f'Heat Capacity - {round(a,5)} eV/K \nMelting point - {melting} K \nLatent heat - {round((34728.1-33961.8),2)} eV' ,fontsize=10, bbox=dict(facecolor='red', alpha=0.5) )
+plt.legend(["Simulated","Curvefit"])
+# plt.show()
+# # Save fig
 path = os.path.join(f"plot_code/cluster_sizes")
 save_path = os.path.join(path,f"{atoms_num}_Energy_Temp.png")
-os.makedirs(path, exist_ok=True)
-# plt.text(x_axis[0],-3100,f'Heat Capacity - {heat_cap} eV/K \nMelting point - 750 K \nLatent heat - 127.5 eV' ,fontsize=10, bbox=dict(facecolor='red', alpha=0.5) )
-# plt.xticks(np.arange(min(x_axis), max(x_axis)+1, 200))
-# plt.savefig(save_path, bbox_inches='tight')
-plt.show()
+plt.savefig(save_path, bbox_inches='tight')
+# plt.show()

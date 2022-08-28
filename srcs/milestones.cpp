@@ -169,18 +169,17 @@ void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
     double total_energy = 0;
     double temperature = 0;
     double totalEnergy = 0;
-    int heat_cap = 0;
     int k = 0;
     double alpha = 0;
 
-    std::ofstream outdata("../data/milestone7_heatcap.dat");
+    std::ofstream outdata("../data/milestone7.dat");
 
     if (!outdata) { // file couldn't be opened
         cerr << "Error: file could not be opened" << endl;
         exit(1);
     }
     auto [positions,
-          velocities]{read_xyz_with_velocities("../xyz/cluster_923.xyz")};
+          velocities]{read_xyz_with_velocities("../xyz/custom_3871.xyz")};
     Atoms atoms{positions};
     atoms.velocities = 0;
     atoms.masses = mass;
@@ -195,7 +194,7 @@ void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
         // potential = atoms.energies.sum();
         Verlet_two(timestep, atoms);
         kinetic_energy = Kinetic(atoms, rc, eps, sigma);
-        double total_energy = kinetic_energy + potential;
+        double total_energy = kinetic_energy + potential;      
 
         // save xyz file
         if (i % save_every == 0) {
@@ -213,10 +212,11 @@ void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
         }
 
         if (i % tau == 0 && i != 0) {
+
             std::cout << "[" << totalEnergy / (relax_value) << " , "
                       << temperature / (relax_value) << "]," << std::endl;
             // in milisecond
-            outdata << "[ " << potential / (relax_value) << " ,"
+            outdata << "[ " << totalEnergy / (relax_value) << " ,"
                     << temperature / (relax_value) << " ]," << std::endl;
             relax_value = 0;
             count_relax = 0;
@@ -231,6 +231,7 @@ void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
 
             k = k + 1;
         }
+        count_relax += 1;
     }
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
@@ -241,6 +242,7 @@ void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
                  "-  Average Total Energy (eV) vs Average temperature"
               << std::endl;
 }
+
 
 void milestone7_heatCap(int steps, double mass, double boltzmann_kb,
                         double timestep, double rc, int tau, int save_every,
@@ -268,7 +270,7 @@ void milestone7_heatCap(int steps, double mass, double boltzmann_kb,
         exit(1);
     }
     auto [positions,
-          velocities]{read_xyz_with_velocities("../xyz/cluster_10179.xyz")};
+          velocities]{read_xyz_with_velocities("../xyz/cluster_147.xyz")};
     Atoms atoms{positions};
     atoms.velocities = 0;
     atoms.masses = mass;
@@ -302,13 +304,14 @@ void milestone7_heatCap(int steps, double mass, double boltzmann_kb,
             heat_cap = heat_cap + 1;
             std::cout << "[" << totalEnergy / (relax_value) << " , "
                       << temperature / (relax_value) << "]," << std::endl;
-            if (heat_cap == 2) {
-                temp_temp = temperature;
-                energy_temp = totalEnergy;
-            } else if (heat_cap == 3) {
-                temp_temp = temperature - temp_temp;
-                energy_temp = totalEnergy - energy_temp ;
+            if (heat_cap == 1) {
+                temp_temp = temperature / (relax_value);
+                energy_temp = totalEnergy / (relax_value);
+            } else if (heat_cap == 5) {
+                temp_temp = temperature / (relax_value) - temp_temp;
+                energy_temp = totalEnergy / (relax_value) - energy_temp ;
             }
+
             relax_value = 0;
             count_relax = 0;
             temperature = 0;
@@ -317,13 +320,13 @@ void milestone7_heatCap(int steps, double mass, double boltzmann_kb,
             // del Q = Ekinetic' - Ekinetic
             // del Q = Ekinetic (sq of alpha - 1)
             // 50, 80
-            alpha = sqrt((150 / kinetic_energy) + 1);
+            alpha = sqrt((0.5 / kinetic_energy) + 1);
             atoms.velocities = atoms.velocities * alpha;
             k = k + 1;
         }
         count_relax += 1;
     }
-    outdata << "[ " << 10179 << " ," << energy_temp / temp_temp << " ],"
+    outdata << "[ " << 147 << " ," << energy_temp / temp_temp << " ],"
             << std::endl;
 
     outdata.close();
