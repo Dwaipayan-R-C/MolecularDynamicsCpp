@@ -27,15 +27,15 @@ spl = make_interp_spline(x_axis, y_axis, k=2)  # type: BSpline
 power_smooth = spl(xnew)
 
 plt.plot(xnew, power_smooth)
-plt.xscale('log')
-plt.yscale('log')
+# plt.xscale('log')
+# plt.yscale('log')
 plt.plot(x_axis,y_axis, 'r-o')
 plt.xlabel('Cluster size')
 plt.ylabel('Melting temperature (K)')
 plt.title('Melting point vs cluster size')
 plt.grid(True,which="both")
 path = "plot_code/milestone_plots/"
-save_path = os.path.join(path,f"melting_cluster.png")
+save_path = os.path.join(path,f"melting_cluster_curve.png")
 plt.legend(['Curvefit','Real data'])
 os.makedirs(path, exist_ok=True)
 # plt.show()
