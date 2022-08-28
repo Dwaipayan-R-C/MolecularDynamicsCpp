@@ -470,8 +470,7 @@ void lj_potential_distance(int steps, double mass, double sigma, double eps, int
 
 void energy_drift(int steps, double mass, double boltzmann_kb,
                 double timestep, double rc, 
-                double sigma, double eps) {
-    
+                double sigma, double eps) {    
     
     double potential = 0;
     double kinetic_energy = 0;
@@ -489,7 +488,7 @@ void energy_drift(int steps, double mass, double boltzmann_kb,
         exit(1);
     }
     auto [positions,
-          velocities]{read_xyz_with_velocities("../xyz/cluster_3871.xyz")};
+          velocities]{read_xyz_with_velocities("../xyz/cluster_923.xyz")};
     Atoms atoms{positions};
     atoms.velocities = 0;
     atoms.masses = mass;
@@ -502,6 +501,8 @@ void energy_drift(int steps, double mass, double boltzmann_kb,
         Verlet_two(timestep, atoms);
         kinetic_energy = Kinetic(atoms, rc, eps, sigma);
         double total_energy = kinetic_energy + potential;
+        // outdata << "[ " <<total_energy << " ,"
+        //             << (i+1)*timestep << " ]," << std::endl; 
         if (j==-1){
             init_total = total_energy;            
             j++;
@@ -510,9 +511,7 @@ void energy_drift(int steps, double mass, double boltzmann_kb,
             outdata << "[ " <<energy_drift << " ,"
                     << (i+1)*timestep << " ]," << std::endl; 
             init_total = total_energy;      
-        }
-        
-         
+        }   
     }    
     outdata.close();
 
