@@ -160,6 +160,7 @@ void milestone6(int steps, double mass, double sigma, double eps,
 void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
                 double timestep, double rc, int tau, int save_every,
                 double sigma, double eps) {
+    std::string cluster_name = "923";
     int measurement_gap = tau / 2;
     int number = 0;
     int count_relax = 0;
@@ -172,14 +173,14 @@ void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
     int k = 0;
     double alpha = 0;
 
-    std::ofstream outdata("../data/milestone7.dat");
+    std::ofstream outdata("../data/milestone_7/data_" + cluster_name + ".dat");
 
     if (!outdata) { // file couldn't be opened
         cerr << "Error: file could not be opened" << endl;
         exit(1);
     }
     auto [positions,
-          velocities]{read_xyz_with_velocities("../xyz/custom_3871.xyz")};
+          velocities]{read_xyz_with_velocities("../xyz/custom_"+ cluster_name +".xyz")};
     Atoms atoms{positions};
     atoms.velocities = 0;
     atoms.masses = mass;
@@ -216,7 +217,7 @@ void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
             std::cout << "[" << totalEnergy / (relax_value) << " , "
                       << temperature / (relax_value) << "]," << std::endl;
             // in milisecond
-            outdata << "[ " << totalEnergy / (relax_value) << " ,"
+            outdata << "[ " << potential / (relax_value) << " ,"
                     << temperature / (relax_value) << " ]," << std::endl;
             relax_value = 0;
             count_relax = 0;

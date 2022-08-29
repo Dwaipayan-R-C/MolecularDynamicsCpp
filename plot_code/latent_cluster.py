@@ -1,43 +1,37 @@
-from turtle import color
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-from scipy.interpolate import make_interp_spline, BSpline
 def Extract(lst, index):
     return [item[index] for item in lst]
 
 project_path = os. getcwd()
-
 list_val = [
-
-[ 147 ,5 ],
-[ 309 ,20 ],
-[ 923 ,50 ],
-[ 3871 ,270 ],
-[ 5083 ,600 ],
-[ 8217 ,900 ],
-[ 10179 ,1100 ],
+[ 147 ,6.07],
+[ 309 , 16.17],
+[ 923 ,47.69 ],
+[ 1415 ,105.9 ],
+[ 2057 ,105.86 ],
+[ 2869 ,151.42 ],
+[ 3871 ,212.1],
+[ 5083 ,484.1 ],
+[ 8217 ,604.7],
+[ 10179 ,766.3],
 ]
 
 #region plot start
-x_axis = np.array(Extract(list_val,0))
-y_axis = np.array(Extract(list_val,1))
-xnew = np.linspace(x_axis.min(), x_axis.max(), 300) 
-
-spl = make_interp_spline(x_axis, y_axis, k=2)  # type: BSpline
-power_smooth = spl(xnew)
-
-plt.plot(xnew, power_smooth, color='brown')
-# plt.xscale('log')
-# plt.yscale('log')
-plt.scatter(x_axis,y_axis, color='black')
+x_axis = Extract(list_val,0)
+y_axis = Extract(list_val,1)
+default_x_ticks = range(len(x_axis))
+plt.plot(default_x_ticks, y_axis, color='brown')
+plt.xticks(default_x_ticks, x_axis)
+plt.scatter(default_x_ticks, y_axis, color='black')
 plt.xlabel('Cluster size')
 plt.ylabel(r'Latent heat (eV)')
 plt.title('Latent heat vs cluster size')
 plt.grid(True,which="both")
 path = "plot_code/milestone_plots/"
 save_path = os.path.join(path,f"latent_cluster_lin.png")
-plt.legend(['Curvefit','Real data'])
+
 os.makedirs(path, exist_ok=True)
 plt.show()
-# plt.savefig(save_path, pad_inches=1)
+plt.savefig(save_path, pad_inches=1)

@@ -282,5 +282,5 @@ int main( int argc, char *argv[] )
 
   return 0;
 }
-// ./a_au.out 11 500 >../xyz/custom_cluster.xyz
-//   g++ ih.C -o ./xyz/ a_au.out
+// ../build/cluster_file.out 6 2.885 2.74379 >../xyz/custom_923.xyz
+//   g++ ih.C -o ./build/cluster_file.out
