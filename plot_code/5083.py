@@ -12,78 +12,93 @@ def Extract(lst, index):
 atoms_num = 5083
 timestep_1 = 2 
 tau = 1000 * timestep_1
-delQ = 80 #eV
+delQ = 120 #eV
 
 
 list_val = [
 #region start
-[ -18675.7 ,198.984 ],
-[ -18632.5 ,253.205 ],
-[ -18585.1 ,308.76 ],
-[ -18535.8 ,358.683 ],
-[ -18483.1 ,404.03 ],
-[ -18422.2 ,434.494 ],
-[ -18374.1 ,483.803 ],
-[ -18329.2 ,537.833 ],
-[ -18286.9 ,594.665 ],
-[ -18258.6 ,673.263 ],
-[ -18217.5 ,731.964 ],
-[ -18170.3 ,781.537 ],
-[ -18114.4 ,819.411 ],
-[ -18050.7 ,845.774 ],
-[ -17986.5 ,871.044 ],
-[ -17918.7 ,890.422 ],
-[ -17859.8 ,923.083 ],
-[ -17785.9 ,933.24 ],
-[ -17718 ,952.17 ],
-[ -17653 ,975.85 ],
-[ -17589.7 ,1002.11 ],
-[ -17520.7 ,1019.72 ],
-[ -17479.8 ,1079.67 ],
-[ -17424.2 ,1117.64 ],
-[ -17362.3 ,1146.34 ],
-[ -17324.8 ,1211.42 ],
-[ -17264.1 ,1241.99 ],
-[ -17207.1 ,1277.9 ],
-[ -17173.6 ,1349.02 ],
-[ -17113.7 ,1380.98 ],
-[ -17063.8 ,1427.41 ],
-[ -17020.9 ,1484.59 ],
-[ -16972.1 ,1532.81 ],
-
-
-
-
-
+[ -18549.7 ,195.464 ],
+[ -18430.5 ,278.67 ],
+[ -18305.7 ,362.892 ],
+[ -18183.4 ,426.585 ],
+[ -18061.6 ,509.926 ],
+[ -17940.8 ,567.441 ],
+[ -17819.7 ,629.458 ],
+[ -17699.6 ,733.411 ],
+[ -17580.4 ,828.008 ],
+[ -17460 ,884.727 ],
+[ -17338.6 ,913.853 ],
+[ -17217.2 ,929.497 ],
+[ -17096.5 ,958.793 ],
+[ -16975.9 ,992.561 ],
+[ -16855.1 ,1032.39 ],
+[ -16734.6 ,1094.53 ],
+[ -16613.4 ,1150.42 ],
+[ -16492.8 ,1220.92 ],
+[ -16372.2 ,1302.49 ],
+[ -16251 ,1352.97 ],
+[ -16130.1 ,1418.83 ],
+[ -16009.3 ,1490.43 ],
 
 
 #endRegion
 ]
 
+
+curve_list_1 = [
+#region start
+[ -18305.7 ,362.892 ],
+[ -18183.4 ,426.585 ],
+[ -18061.6 ,509.926 ],
+[ -17940.8 ,567.441 ],
+[ -17819.7 ,629.458 ],
+[ -17699.6 ,733.411 ],
+[ -17580.4 ,828.008 ],
+[ -17460 ,884.727 ],
+
+#endRegion
+]
+
+
+curve_list_2 = [
+#region start
+[ -16734.6 ,1094.53 ],
+[ -16613.4 ,1150.42 ],
+[ -16492.8 ,1220.92 ],
+[ -16372.2 ,1302.49 ],
+[ -16251 ,1352.97 ],
+[ -16130.1 ,1418.83 ],
+#endRegion
+]
+
+melting = np.array(Extract(curve_list_1,1))[-1]
 #region plot start
 x_axis = Extract(list_val,1)
 y_axis = Extract(list_val,0)
-param = np.linspace(0, 1, len(x_axis))
-spl = make_interp_spline(param, np.c_[x_axis,y_axis], k=2) #(1)
-xnew, y_smooth = spl(np.linspace(0, 1, len(x_axis) * 100)).T #(2)
-plt.plot(xnew, y_smooth, color='red')
-plt.scatter(x_axis, y_axis, color="black")
+
+curve_fit_x = np.array(Extract(curve_list_1,1))
+curve_fit_y = np.array(Extract(curve_list_1,0))
+curve_fit_x_high = np.array(Extract(curve_list_2,1))
+curve_fit_y_high = np.array(Extract(curve_list_2,0))
+
+a, b = np.polyfit(curve_fit_x, curve_fit_y, 1)
+a_high, b_high = np.polyfit(curve_fit_x_high, curve_fit_y_high, 1)
+
 plt.xlabel("Temperature (K)")
 plt.ylabel("Total Energy (eV)")
 plt.suptitle(f"Total Energy vs Temperature ( {atoms_num} atoms )")
 plt.title(f"Tau = {tau} fs, timestep = {timestep_1} fs, ΔQ = {delQ} eV")
-# plt.plot(x_axis,y_axis, color='crimson')
-# plt.plot(x_axis,f2)
-
+plt.plot(x_axis,y_axis, color = 'brown')
+plt.scatter(x_axis,y_axis,  color = 'black')
+# plt.plot(curve_fit_x, a*curve_fit_x+b, color='blue', linewidth=1.5)
+# plt.plot(curve_fit_x_high, a_high*curve_fit_x_high+b_high, color='blue', linewidth=1.5)
 plt.grid()
 #endregion
 
-# Save fig
-
+plt.text(x_axis[0],-16800,f'Heat Capacity - {round(a,5)} eV/K \nMelting point - {melting} K \nLatent heat - {round((17460 - 16975.9),2)} eV' ,fontsize=10, bbox=dict(facecolor='red', alpha=0.5) )
+plt.legend(["Simulated","Curvefit"])
 path = os.path.join(f"plot_code/cluster_sizes")
-save_path = os.path.join(path,f"{atoms_num}_Energy_Temp.png")
 os.makedirs(path, exist_ok=True)
-# plt.text(x_axis[0],-3100,f'Heat Capacity - {heat_cap} eV/K \nMelting point - 750 K \nLatent heat - 127.5 eV' ,fontsize=10, bbox=dict(facecolor='red', alpha=0.5) )
-# plt.xticks(np.arange(min(x_axis), max(x_axis)+1, 200))
-# plt.savefig(save_path, bbox_inches='tight')
+save_path = os.path.join(path,f"{atoms_num}_Energy_Temp.png")
+plt.savefig(save_path, bbox_inches='tight')
 plt.show()

@@ -9,68 +9,67 @@ from scipy.ndimage.filters import gaussian_filter1d
 def Extract(lst, index):
     return [item[index] for item in lst]
 
-atoms_num = 10179
+atoms_num = 2057
 timestep_1 = 2 
 tau = 1000 * timestep_1
-delQ = 190 #eV
-
+delQ = 35 #eV
 
 list_val = [
 #region start
-[ -37212.3 ,180.794 ],
-[ -37019.5 ,240.77 ],
-[ -36839.9 ,349.801 ],
-[ -36655.6 ,445.037 ],
-[ -36458.9 ,437.338 ],
-[ -36269.3 ,561.79 ],
-[ -36078.5 ,613.83 ],
-[ -35880.4 ,634.72 ],
-[ -35690.3 ,692.367 ],
-[ -35505.3 ,812.561 ],
-[ -35310.9 ,832.748 ],
-[ -35117.5 ,845.217 ],
-[ -34928.6 ,925.933 ],
-[ -34737.5 ,954.244 ],
-[ -34545.2 ,959.574 ],
-[ -34354 ,989.502 ],
-[ -34163 ,1006.6 ],
-[ -33971.2 ,1026.85 ],
-[ -33779.9 ,1061.55 ],
-[ -33588.5 ,1102.1 ],
-[ -33397.4 ,1154.98 ],
-[ -33206.4 ,1209.91 ],
-[ -33014.9 ,1255.51 ],
-[ -32823.6 ,1311.06 ],
-[ -32631.8 ,1356.7 ],
-[ -32441.4 ,1430.32 ],
-
+[ -7477.63 ,174.637 ],
+[ -7439.07 ,205.403 ],
+[ -7403.92 ,274.017 ],
+[ -7370.19 ,369.222 ],
+[ -7334.01 ,407.815 ],
+[ -7298.63 ,463.911 ],
+[ -7264.02 ,530.668 ],
+[ -7228.49 ,596.663 ],
+[ -7193.18 ,647.637 ],
+[ -7157.69 ,687.659 ],
+[ -7122.7 ,753.74 ],
+[ -7087.56 ,799.627 ],
+[ -7052.2 ,833.577 ],
+[ -7016.87 ,866.268 ],
+[ -6981.68 ,904.65 ],
+[ -6946.37 ,902.478 ],
+[ -6911.07 ,919.985 ],
+[ -6875.82 ,933.4 ],
+[ -6840.54 ,961.042 ],
+[ -6805.29 ,1004.01 ],
+[ -6769.98 ,1040.46 ],
+[ -6734.74 ,1093.63 ],
+[ -6699.46 ,1131.99 ],
+[ -6664.22 ,1174.59 ],
 
 #endRegion
 ]
+
 
 curve_list_1 = [
 #region start
-[ -36269.3 ,561.79 ],
-[ -36078.5 ,613.83 ],
-[ -35880.4 ,634.72 ],
-[ -35690.3 ,692.367 ],
-[ -35505.3 ,812.561 ],
-[ -35310.9 ,832.748 ],
-[ -35117.5 ,845.217 ],
-[ -34928.6 ,925.933 ],
-[ -34737.5 ,954.244 ],
+[ -7334.01 ,407.815 ],
+[ -7298.63 ,463.911 ],
+[ -7264.02 ,530.668 ],
+[ -7228.49 ,596.663 ],
+[ -7193.18 ,647.637 ],
+[ -7157.69 ,687.659 ],
+[ -7122.7 ,753.74 ],
+[ -7087.56 ,799.627 ],
+[ -7052.2 ,833.577 ],
+[ -7016.87 ,866.268 ],
+
+
 #endRegion
 ]
 
+
 curve_list_2 = [
 #region start
-[ -33397.4 ,1154.98 ],
-[ -33206.4 ,1209.91 ],
-[ -33014.9 ,1255.51 ],
-[ -32823.6 ,1311.06 ],
-[ -32631.8 ,1356.7 ],
-[ -32441.4 ,1430.32 ],
-
+[ -6805.29 ,1004.01 ],
+[ -6769.98 ,1040.46 ],
+[ -6734.74 ,1093.63 ],
+[ -6699.46 ,1131.99 ],
+[ -6664.22 ,1174.59 ],
 #endRegion
 ]
 
@@ -93,15 +92,15 @@ plt.suptitle(f"Total Energy vs Temperature ( {atoms_num} atoms )")
 plt.title(f"Tau = {tau} fs, timestep = {timestep_1} fs, ΔQ = {delQ} eV")
 plt.plot(x_axis,y_axis, color = 'brown')
 plt.scatter(x_axis,y_axis,  color = 'black')
-# plt.plot(curve_fit_x, a*curve_fit_x+b, color='blue', linewidth=1.5)
-# plt.plot(curve_fit_x_high, a_high*curve_fit_x_high+b_high, color='blue', linewidth=1.5)
+plt.plot(curve_fit_x, a*curve_fit_x+b, color='blue', linewidth=1.5)
+plt.plot(curve_fit_x_high, a_high*curve_fit_x_high+b_high, color='blue', linewidth=1.5)
 plt.grid()
 #endregion
 
-plt.text(x_axis[0],-34000,f'Heat Capacity - {round(a,5)} eV/K \nMelting point - {melting} K \nLatent heat - {round((34728.1-33961.8),2)} eV' ,fontsize=10, bbox=dict(facecolor='red', alpha=0.5) )
+plt.text(x_axis[0],-6900,f'Heat Capacity - {round(a,5)} eV/K \nMelting point - {melting} K \nLatent heat - {round((6981.68 - 6875.82),2)} eV' ,fontsize=10, bbox=dict(facecolor='red', alpha=0.5) )
 plt.legend(["Simulated","Curvefit"])
 path = os.path.join(f"plot_code/cluster_sizes")
 os.makedirs(path, exist_ok=True)
 save_path = os.path.join(path,f"{atoms_num}_Energy_Temp.png")
 plt.savefig(save_path, bbox_inches='tight')
-# plt.show()
+plt.show()
