@@ -63,6 +63,14 @@ list_val = [
 
 curve_list_1 = [
 #region start
+[ -5131.94 ,143.972 ],
+[ -5116.22 ,179.148 ],
+[ -5100.61 ,223.602 ],
+[ -5086.02 ,280.137 ],
+[ -5069.99 ,303.705 ],
+[ -5055.53 ,360.061 ],
+[ -5039.78 ,378.933 ],
+[ -5025.54 ,431.531 ],
 [ -5009.83 ,450.993 ],
 [ -4995.09 ,495.263 ],
 [ -4979.57 ,518.102 ],
@@ -109,21 +117,24 @@ curve_fit_y_high = np.array(Extract(curve_list_2,0))
 a, b = np.polyfit(curve_fit_x, curve_fit_y, 1)
 a_high, b_high = np.polyfit(curve_fit_x_high, curve_fit_y_high, 1)
 
-plt.xlabel("Temperature (K)")
-plt.ylabel("Total Energy (eV)")
-plt.suptitle(f"Total Energy vs Temperature ( {atoms_num} atoms )")
-plt.title(f"Tau = {tau} fs, timestep = {timestep_1} fs, ΔQ = {delQ} eV")
-plt.plot(x_axis,y_axis, color = 'brown')
-plt.scatter(x_axis,y_axis,  color = 'black')
-# plt.plot(curve_fit_x, a*curve_fit_x+b, color='blue', linewidth=1.5)
-# plt.plot(curve_fit_x_high, a_high*curve_fit_x_high+b_high, color='blue', linewidth=1.5)
-plt.grid()
+fig,ax = plt.subplots()
+ax.set_xlabel("Temperature (K)")
+ax.set_ylabel("Total Energy (eV)")
+fig.suptitle(f"Total Energy vs Temperature ( {atoms_num} atoms )")
+ax.set_title(f"Tau = {tau} fs, timestep = {timestep_1} fs, ΔQ = {delQ} eV")
+ax.plot(x_axis,y_axis, color = 'brown')
+ax.scatter(x_axis,y_axis,  color = 'black')
+# ax.plot(curve_fit_x, a*curve_fit_x+b, color='blue', linewidth=1.5)
+# ax.plot(curve_fit_x_high, a_high*curve_fit_x_high+b_high, color='blue', linewidth=1.5)
+ax.grid()
 #endregion
 
-plt.text(x_axis[0],-4750,f'Heat Capacity - {round(a,5)} eV/K \nMelting point - {melting} K \nLatent heat - {round((4828.74 - 4722.84),2)} eV' ,fontsize=10, bbox=dict(facecolor='red', alpha=0.5) )
-plt.legend(["Simulated","Curvefit"])
+ax.text(0.3,0.75,f'Heat Capacity - {round(a/atoms_num,6)} eV/(K*atoms) \nMelting point - {melting} K \nLatent heat - {round((4828.74 - 4722.84)/atoms_num,4)} eV/atom' ,ha='center', va='center',fontsize=10,transform=ax.transAxes,  bbox=dict(facecolor='red', alpha=0.5) )
+ax.legend(["Simulated","Curvefit"])
 path = os.path.join(f"plot_code/cluster_sizes")
 os.makedirs(path, exist_ok=True)
 save_path = os.path.join(path,f"{atoms_num}_Energy_Temp.png")
-plt.savefig(save_path, bbox_inches='tight')
+fig.savefig(save_path, bbox_inches='tight')
 plt.show()
+# plt.text(x_axis[0],-4750,f'Heat Capacity - {round(a,5)} eV/K \nMelting point - {melting} K \nLatent heat - {round((4828.74 - 4722.84),2)} eV' ,fontsize=10, bbox=dict(facecolor='red', alpha=0.5) )
+

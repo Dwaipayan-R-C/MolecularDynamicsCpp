@@ -160,7 +160,7 @@ void milestone6(int steps, double mass, double sigma, double eps,
 void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
                 double timestep, double rc, int tau, int save_every,
                 double sigma, double eps) {
-    std::string cluster_name = "923";
+    std::string cluster_name = "10179";
     int measurement_gap = tau / 2;
     int number = 0;
     int count_relax = 0;
@@ -217,7 +217,7 @@ void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
             std::cout << "[" << totalEnergy / (relax_value) << " , "
                       << temperature / (relax_value) << "]," << std::endl;
             // in milisecond
-            outdata << "[ " << potential / (relax_value) << " ,"
+            outdata << "[ " << totalEnergy / (relax_value) << " ,"
                     << temperature / (relax_value) << " ]," << std::endl;
             relax_value = 0;
             count_relax = 0;
@@ -512,7 +512,7 @@ void energy_drift(int steps, double mass, double boltzmann_kb,
             j++;
         }else{            
             energy_drift = (total_energy-init_total)/init_total;
-            outdata << "[ " <<energy_drift << " ,"
+            outdata << "[ " <<energy_drift/923 << " ,"
                     << (i+1)*timestep << " ]," << std::endl; 
             init_total = total_energy;      
         }   
