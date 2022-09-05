@@ -1,4 +1,15 @@
-[ 0.00447423 ,-3341.15 ,0 ],
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+from scipy import interpolate
+# from scipy.interpolate import spline
+
+def Extract(lst, index,val = 0):
+    return [item[index]-val for item in lst]
+
+
+
+list_val =[[ 0.00447423 ,-3341.15 ,0 ],
 [ 0.0402362 ,-3341.18 ,2 ],
 [ 0.11159 ,-3341.25 ,4 ],
 [ 0.218199 ,-3341.36 ,6 ],
@@ -9998,3 +10009,26 @@
 [ 226.438 ,-2958.9 ,19994 ],
 [ 226.232 ,-2958.7 ,19996 ],
 [ 226.031 ,-2958.49 ,19998 ],
+]
+kinetic = Extract(list_val,0)
+# potenrial = Extract(list_val,1)
+# total = Extract(list_val,2)
+x_axis = np.linspace(0,len(kinetic)*2,len(kinetic))
+# smoothed_mode = interpolate.interp1d(y_axis, x_axis, 'cubic')
+# floor_range = np.linspace(min(y_axis), max(y_axis), 500)
+
+plt.plot(x_axis,kinetic,  color='brown')
+# plt.plot(x_axis,potenrial,  color='blue')
+# plt.plot(x_axis,total,  color='red')
+plt.grid()
+#endregion
+# Save fig
+path = "plot_code/milestone_plots/"
+save_path = os.path.join(path,f"milestone7_kin.png")
+os.makedirs(path, exist_ok=True)
+# plt.legend(["Kinetic Energy","Potential Energy", "Total Energy"])
+plt.xlabel('Timestep (fs)')
+plt.ylabel('Kinetic energy (eV)')
+plt.title("Kinetic Energy vs Time (923 atoms)")
+plt.savefig(save_path, bbox_inches='tight')
+plt.show()
