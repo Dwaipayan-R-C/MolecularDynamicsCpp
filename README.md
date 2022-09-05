@@ -43,13 +43,13 @@ this equilibrium we might heat the system. Thus, we provide the system with an a
 2. Energy conservation for MPI and serialized:
 Energy conservation is an important test to verify if our code and verlet integration is successful in propagating the simulation with time. Thus, we provide plot for energy conservation for both 1 process and 8 processes. 
 
-![Total energy vs time](plot_code/milestone_plots/Energy_conservation.JPG)
+![Total energy vs time](plot_code/milestone_plots/Energy_conservation.png)
 
 3. Gold cluster simulation:
 We perform real life simulation for two objects - Gold cluster and nanowire whisker. In gold cluster, we perform different energy variations with time and temperature. Also, calculate the melting point, latent heat and heat capacity with cluster sizes. Here, we provide plots for kinetic and potential energy vs time plot and solid and molten state gold cluster. 
 
-![Solid and Molten cluster](plot_code/milestone_plots/Gold_cluster.JPG)
-![Energy vs time](plot_code/milestone_plots/Energyvstemp.JPG)
+![Solid and Molten cluster](plot_code/milestone_plots/Gold_cluster.png)
+![Energy vs time](plot_code/milestone_plots/Energyvstemp.png)
 
 ## Run
 To run the project, navigate to the source code and create this directory,
@@ -62,6 +62,8 @@ make                                                                # build the 
 tests/myproject_tests
 ```  
 and to create clusters,
+
+```
 g++ ih.C -o ./build/cluster_file.out                                # create a project file
 ../build/cluster_file.out 6 2.885 2.74379 >../xyz/custom_923.xyz    # run the project file
 ```
