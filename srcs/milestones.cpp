@@ -160,7 +160,7 @@ void milestone6(int steps, double mass, double sigma, double eps,
 void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
                 double timestep, double rc, int tau, int save_every,
                 double sigma, double eps) {
-    std::string cluster_name = "10179";
+    std::string cluster_name = "923";
     int measurement_gap = tau / 2;
     int number = 0;
     int count_relax = 0;
@@ -211,14 +211,16 @@ void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
             totalEnergy += total_energy;
             relax_value += 1;
         }
-
+        // in milisecond
+        outdata << "[ " << kinetic_energy << " ,"<<potential << " ,"
+                    << timestep*i << " ]," << std::endl;
         if (i % tau == 0 && i != 0) {
 
             std::cout << "[" << totalEnergy / (relax_value) << " , "
                       << temperature / (relax_value) << "]," << std::endl;
-            // in milisecond
-            outdata << "[ " << totalEnergy / (relax_value) << " ,"
-                    << temperature / (relax_value) << " ]," << std::endl;
+            // // in milisecond
+            // outdata << "[ " << totalEnergy / (relax_value) << " ,"
+            //         << temperature / (relax_value) << " ]," << std::endl;
             relax_value = 0;
             count_relax = 0;
             temperature = 0;
@@ -243,7 +245,6 @@ void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
                  "-  Average Total Energy (eV) vs Average temperature"
               << std::endl;
 }
-
 
 void milestone7_heatCap(int steps, double mass, double boltzmann_kb,
                         double timestep, double rc, int tau, int save_every,
