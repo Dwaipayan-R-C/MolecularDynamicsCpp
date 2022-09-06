@@ -424,6 +424,88 @@ void milestone8(int argc, char *argv[], int steps, double mass, double timestep,
               << std::endl;
 }
 
+
+void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
+                double rc, int save_every, double sigma, double eps){
+                    MPI_Init(&argc, &argv);
+    int number = 0;
+    double potential = 0;
+    double kinetic_energy = 0;
+    int k = 0;
+    double alpha = 0;
+
+    Domain domain(MPI_COMM_WORLD, {30, 30, 30},
+                  {1, 1, MPI::comm_size(MPI_COMM_WORLD)}, {0, 0, 1});
+
+    std::ofstream outdata("../data/milestone9.dat");
+
+    if (!outdata) { // file couldn't be opened
+        cerr << "Error: file could not be opened" << endl;
+        exit(1);
+    }
+
+    auto [positions,
+          velocities]{read_xyz_with_velocities("../xyz/whiskers/whisker_small.xyz")};
+    Atoms atoms{positions};
+    atoms.velocities = 0;
+    atoms.masses = mass;
+    atoms.energies = 0;
+    atoms.kin_energy = 0;
+
+    auto start = high_resolution_clock::now();
+    NeighborList neighbor_list(rc);
+    domain.enable(atoms); // divides into subdomains
+    for (int i = 0; i < steps; i++) {
+        Verlet_one(timestep, atoms);
+        // Neighbour list looks for ghost nodes which is why we exchange
+        // atoms and updates ghost nodes.
+        domain.exchange_atoms(atoms);
+        domain.update_ghosts(atoms, 2 * rc);
+        neighbor_list.update(atoms);
+        potential = gupta(atoms, neighbor_list, rc);
+        Verlet_two(timestep, atoms);
+        kinetic_energy = Kinetic(atoms, rc, eps, sigma);
+        double global_potential = 0;
+        double global_kinetic = 0;
+        double local_kinetic = 0;
+        double local_potential = 0;
+        for (int k = 0; k < domain.nb_local(); k++) {
+            local_potential += atoms.energies(k);
+            local_kinetic += atoms.kin_energy(k);
+        }
+
+        MPI_Reduce(&local_potential, &global_potential, 1, MPI_DOUBLE, MPI_SUM,
+                   0, MPI_COMM_WORLD);
+
+        MPI_Reduce(&local_kinetic, &global_kinetic, 1, MPI_DOUBLE, MPI_SUM, 0,
+                   MPI_COMM_WORLD);
+
+        domain.disable(atoms);
+        if (domain.rank() == 0) {
+            double total_energy = global_potential + global_kinetic;
+            outdata << "[" << global_potential << " , " << global_kinetic
+                    << " , " << total_energy << "]," << std::endl;
+        }
+        if (i % save_every == 0 && domain.rank() == 0) {
+            double total_energy = global_potential + global_kinetic;
+
+            std::cout << "[" << global_potential << " , " << global_kinetic
+                      << " , " << total_energy << "]," << std::endl;
+            write_xyz("../xyz_output/milestone9/" + filename +
+                          to_string(number) + file_extension,
+                      atoms);
+            number = number + 1;
+        }
+        domain.enable(atoms);
+    }
+
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+
+    outdata.close();
+    MPI_Finalize();
+    std::cout << "Milestone 9 ran successfully " << std::endl;    
+}
 void lj_potential_distance(int steps, double mass, double sigma, double eps, int save_gap,
                 double rc){
                     double potential = 0;
