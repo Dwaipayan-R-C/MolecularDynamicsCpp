@@ -43,7 +43,7 @@ this equilibrium we might heat the system. Thus, we provide the system with an a
 2. Energy conservation for MPI and serialized:<br/>
 Energy conservation is an important test to verify if our code and verlet integration is successful in propagating the simulation with time. Thus, we provide plot for energy conservation for both 1 process and 8 processes. 
 
-![Total energy vs time](plot_code/milestone_plots/Energy_conservation.png)
+![Total energy vs time](plot_code/milestone_plots/Energy_conservation.png )
 
 3. Gold cluster simulation:<br/>
 We perform real life simulation for two objects - Gold cluster and nanowire whisker. In gold cluster, we perform different energy variations with time and temperature. Also, calculate the melting point, latent heat and heat capacity with cluster sizes. Here, we provide plots for kinetic and potential energy vs time plot and solid and molten state gold cluster. 
