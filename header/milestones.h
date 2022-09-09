@@ -22,6 +22,6 @@ void milestone7(int steps = 10000, double mass = 196.96657 * 103.6, double delQ 
 
 void milestone7_heatCap(int steps = 6000, double mass = 196.96657 * 103.6,  double boltzmann_kb =8.617333262 * pow(10,-5),double  timestep = 2,double rc = 5, int tau = 1000, int save_every = 1000,double sigma=1, double eps=1);
 void milestone8(int argc, char *argv[], int steps = 10000 , double mass = 196.96657 * 103.6, double  timestep = 1,double rc =  5, int save_every = 1000, double sigma=1, double eps=1);
-void milestone9(int argc, char *argv[], int steps = 100000 , double mass = 196.96657 * 103.6, double  timestep = 2,double rc =  5, int save_every = l00, bool scale_length = true, int scale_every = 20000, double scale_rate = 0.005 * 144.25, int target_temp = 0);
+void milestone9(int argc, char *argv[], int steps = 600000 , double mass = 196.96657 * 103.6, double  timestep = 2,double rc =  5, int save_every = 100, bool scale_length = true, int scale_every = 20000, double scale_rate = 0.005 * 144.25, int target_temp = 50);
 void lj_potential_distance(int steps = 13000,double mass=1,double sigma=1, double eps=1, int save_gap=10, double rc =5);
 void energy_drift(int steps=4000, double mass=196.96657 * 103.6, double boltzmann_kb =8.617333262 * pow(10,-5),double  timestep = 10, double rc=5, double sigma=1, double eps=1);

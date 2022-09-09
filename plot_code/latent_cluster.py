@@ -34,8 +34,8 @@ plt.ylabel(r'Latent heat (eV/atom)')
 plt.title('Latent heat vs cluster size')
 plt.grid(True,which="both")
 path = "plot_code/milestone_plots/"
-save_path = os.path.join(path,f"latent_cluster_lin.png")
+# save_path = os.path.join(path,f"latent_cluster_lin.png")
 
 os.makedirs(path, exist_ok=True)
-# plt.show()
-plt.savefig(save_path, pad_inches=1)
+plt.show()
+# plt.savefig(save_path, pad_inches=1)

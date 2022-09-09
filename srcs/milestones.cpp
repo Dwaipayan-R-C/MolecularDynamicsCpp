@@ -432,14 +432,15 @@ void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
     MPI_Init(&argc, &argv);
     int number = 0;
     int k = 0;
-    Eigen::Array3D scale;
-    double z_scale = domain_size[2];
+    Eigen::Array3d scale;
+    double domain_size = 144.25;
+    double z_scale = domain_size;
     double strain = 0;
 
     Domain domain(MPI_COMM_WORLD, {50, 50, 144.25},
                   {1, 1, MPI::comm_size(MPI_COMM_WORLD)}, {0, 0, 1});
 
-    std::ofstream outdata("../data/milestone9.dat");
+    std::ofstream outdata("../data/milestone9_0_large.dat");
 
     if (!outdata) { // file couldn't be opened
         cerr << "Error: file could not be opened" << endl;
@@ -447,7 +448,7 @@ void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
     }
 
     auto [positions,
-          velocities]{read_xyz_with_velocities("../xyz/whiskers/whisker_small.xyz")};
+          velocities]{read_xyz_with_velocities("../xyz/whiskers/whisker_large.xyz")};
     Atoms atoms{positions};
     atoms.velocities = 0;
     atoms.masses = mass;
@@ -463,7 +464,7 @@ void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
 
         if(i != 0 && scale_length == true &&  i%scale_every == 0){
             z_scale += scale_rate;
-            scale << domain_size[0], domain_size[1], z_scale;
+            scale << 50, 50, z_scale;
             domain.scale(atoms, scale);
         }
 
@@ -497,15 +498,15 @@ void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
 
         }
 
-        gl_force = MPI::allreduce(left_force, MPI_SUM, MPI_COMM_WORLD);
-        gr_force = MPI::allreduce(right_force, MPI_SUM, MPI_COMM_WORLD);
+        gl_force = MPI::allreduce(l_force, MPI_SUM, MPI_COMM_WORLD);
+        gr_force = MPI::allreduce(r_force, MPI_SUM, MPI_COMM_WORLD);
 
         domain.disable(atoms);
-
         if (i % save_every == 0 && domain.rank() == 0) {
-            strain = ( z_scale - domain_size[2] ) / domain_size[2];
-            outdata << i << ", " << strain << ", " << gr_force << ", " << gl_force << ", \n"
-            write_xyz("../xyz_output/milestone9/" + filename +
+            strain = ( z_scale - domain_size ) / domain_size;
+            outdata << i << ", " << strain << ", " << gr_force << ", " << gl_force << ", \n";
+            std::cout << i << ", " << strain << ", " << gr_force << ", " << gl_force <<std::endl;
+            write_xyz("../xyz_output/milestone9_0_large/" + filename +
                           to_string(number) + file_extension,
                       atoms);
             number = number + 1;
