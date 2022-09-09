@@ -426,18 +426,21 @@ void milestone8(int argc, char *argv[], int steps, double mass, double timestep,
 
 
 void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
-                double rc, int save_every, double sigma, double eps){
-                    MPI_Init(&argc, &argv);
-    int number = 0;
-    double potential = 0;
-    double kinetic_energy = 0;
-    int k = 0;
-    double alpha = 0;
+                double rc, int save_every, bool scale_length, int scale_every,
+                double scale_rate, int target_temp) {
 
-    Domain domain(MPI_COMM_WORLD, {30, 30, 30},
+    MPI_Init(&argc, &argv);
+    int number = 0;
+    int k = 0;
+    Eigen::Array3d scale;
+    double domain_size = 144.25;
+    double z_scale = domain_size;
+    double strain = 0;
+
+    Domain domain(MPI_COMM_WORLD, {50, 50, 144.25},
                   {1, 1, MPI::comm_size(MPI_COMM_WORLD)}, {0, 0, 1});
 
-    std::ofstream outdata("../data/milestone9.dat");
+    std::ofstream outdata("../data/milestone9_0_large.dat");
 
     if (!outdata) { // file couldn't be opened
         cerr << "Error: file could not be opened" << endl;
@@ -445,53 +448,65 @@ void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
     }
 
     auto [positions,
-          velocities]{read_xyz_with_velocities("../xyz/whiskers/whisker_small.xyz")};
+          velocities]{read_xyz_with_velocities("../xyz/whiskers/whisker_large.xyz")};
     Atoms atoms{positions};
     atoms.velocities = 0;
     atoms.masses = mass;
     atoms.energies = 0;
     atoms.kin_energy = 0;
-
+    outdata << "step" << ", " << "strain" << ", " << "right" << ", " << "left" << ", \n";
     auto start = high_resolution_clock::now();
     NeighborList neighbor_list(rc);
     domain.enable(atoms); // divides into subdomains
+
+
     for (int i = 0; i < steps; i++) {
+
+        if(i != 0 && scale_length == true &&  i%scale_every == 0){
+            z_scale += scale_rate;
+            scale << 50, 50, z_scale;
+            domain.scale(atoms, scale);
+        }
+
         Verlet_one(timestep, atoms);
         // Neighbour list looks for ghost nodes which is why we exchange
         // atoms and updates ghost nodes.
         domain.exchange_atoms(atoms);
         domain.update_ghosts(atoms, 2 * rc);
         neighbor_list.update(atoms);
-        potential = gupta(atoms, neighbor_list, rc);
+        gupta(atoms, neighbor_list, rc);
         Verlet_two(timestep, atoms);
-        kinetic_energy = Kinetic(atoms, rc, eps, sigma);
-        double global_potential = 0;
-        double global_kinetic = 0;
-        double local_kinetic = 0;
-        double local_potential = 0;
-        for (int k = 0; k < domain.nb_local(); k++) {
-            local_potential += atoms.energies(k);
-            local_kinetic += atoms.kin_energy(k);
+        berendsen_thermostat( atoms, target_temp, timestep, 1000, 8.617333262e-5, 0);
+
+        double gl_force = 0;
+        double gr_force = 0;
+        double l_force = 0;
+        double r_force = 0;
+        if(domain.rank() == 0){
+            for (int k = domain.nb_local();k < atoms.positions.cols(); ++k){
+                if(atoms.positions(2,k) < 0){
+                    l_force += atoms.forces(2,k) * mass;
+                }
+            }
+        }
+        if(domain.rank() == domain.size() - 1){
+            for (int l = domain.nb_local();l < atoms.positions.cols(); ++l){
+                if(atoms.positions(2,l) > z_scale){
+                    r_force += atoms.forces(2,l) * mass;
+                }
+            }
+
         }
 
-        MPI_Reduce(&local_potential, &global_potential, 1, MPI_DOUBLE, MPI_SUM,
-                   0, MPI_COMM_WORLD);
-
-        MPI_Reduce(&local_kinetic, &global_kinetic, 1, MPI_DOUBLE, MPI_SUM, 0,
-                   MPI_COMM_WORLD);
+        gl_force = MPI::allreduce(l_force, MPI_SUM, MPI_COMM_WORLD);
+        gr_force = MPI::allreduce(r_force, MPI_SUM, MPI_COMM_WORLD);
 
         domain.disable(atoms);
-        if (domain.rank() == 0) {
-            double total_energy = global_potential + global_kinetic;
-            outdata << "[" << global_potential << " , " << global_kinetic
-                    << " , " << total_energy << "]," << std::endl;
-        }
         if (i % save_every == 0 && domain.rank() == 0) {
-            double total_energy = global_potential + global_kinetic;
-
-            std::cout << "[" << global_potential << " , " << global_kinetic
-                      << " , " << total_energy << "]," << std::endl;
-            write_xyz("../xyz_output/milestone9/" + filename +
+            strain = ( z_scale - domain_size ) / domain_size;
+            outdata << i << ", " << strain << ", " << gr_force << ", " << gl_force << ", \n";
+            std::cout << i << ", " << strain << ", " << gr_force << ", " << gl_force <<std::endl;
+            write_xyz("../xyz_output/milestone9_0_large/" + filename +
                           to_string(number) + file_extension,
                       atoms);
             number = number + 1;
