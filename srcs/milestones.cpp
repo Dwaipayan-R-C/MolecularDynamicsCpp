@@ -179,8 +179,8 @@ void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
         cerr << "Error: file could not be opened" << endl;
         exit(1);
     }
-    auto [positions,
-          velocities]{read_xyz_with_velocities("../xyz/custom_"+ cluster_name +".xyz")};
+    auto [positions, velocities]{
+        read_xyz_with_velocities("../xyz/custom_" + cluster_name + ".xyz")};
     Atoms atoms{positions};
     atoms.velocities = 0;
     atoms.masses = mass;
@@ -195,7 +195,7 @@ void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
         // potential = atoms.energies.sum();
         Verlet_two(timestep, atoms);
         kinetic_energy = Kinetic(atoms, rc, eps, sigma);
-        double total_energy = kinetic_energy + potential;      
+        double total_energy = kinetic_energy + potential;
 
         // save xyz file
         if (i % save_every == 0) {
@@ -212,8 +212,8 @@ void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
             relax_value += 1;
         }
         // in milisecond
-        outdata << "[ " << kinetic_energy << " ,"<<potential << " ,"
-                    << timestep*i << " ]," << std::endl;
+        outdata << "[ " << kinetic_energy << " ," << potential << " ,"
+                << timestep * i << " ]," << std::endl;
         if (i % tau == 0 && i != 0) {
 
             std::cout << "[" << totalEnergy / (relax_value) << " , "
@@ -264,7 +264,6 @@ void milestone7_heatCap(int steps, double mass, double boltzmann_kb,
     double temp_temp = 0;
     double energy_temp = 0;
 
-    
     std::ofstream outdata("../data/milestone7_heatcap.dat");
 
     if (!outdata) { // file couldn't be opened
@@ -310,8 +309,8 @@ void milestone7_heatCap(int steps, double mass, double boltzmann_kb,
                 temp_temp = temperature / (relax_value);
                 energy_temp = totalEnergy / (relax_value);
             } else if (heat_cap == 5) {
-                temp_temp = temperature / (relax_value) - temp_temp;
-                energy_temp = totalEnergy / (relax_value) - energy_temp ;
+                temp_temp = temperature / (relax_value)-temp_temp;
+                energy_temp = totalEnergy / (relax_value)-energy_temp;
             }
 
             relax_value = 0;
@@ -424,7 +423,6 @@ void milestone8(int argc, char *argv[], int steps, double mass, double timestep,
               << std::endl;
 }
 
-
 void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
                 double rc, int save_every, bool scale_length, int scale_every,
                 double scale_rate, int target_temp) {
@@ -439,30 +437,36 @@ void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
 
     Domain domain(MPI_COMM_WORLD, {50, 50, 144.25},
                   {1, 1, MPI::comm_size(MPI_COMM_WORLD)}, {0, 0, 1});
-
-    std::ofstream outdata("../data/milestone9_0_large.dat");
+    // 50, 50, 144.25
+    std::ofstream outdata("../data/milestone9_0.dat");
 
     if (!outdata) { // file couldn't be opened
         cerr << "Error: file could not be opened" << endl;
         exit(1);
     }
 
-    auto [positions,
-          velocities]{read_xyz_with_velocities("../xyz/whiskers/whisker_large.xyz")};
+    auto [positions, velocities]{
+        read_xyz_with_velocities("../xyz/whiskers/whisker_small.xyz")};
     Atoms atoms{positions};
     atoms.velocities = 0;
     atoms.masses = mass;
     atoms.energies = 0;
     atoms.kin_energy = 0;
-    outdata << "step" << ", " << "strain" << ", " << "right" << ", " << "left" << ", \n";
+    outdata << "step"
+            << ", "
+            << "strain"
+            << ", "
+            << "right"
+            << ", "
+            << "left"
+            << ", \n";
     auto start = high_resolution_clock::now();
     NeighborList neighbor_list(rc);
     domain.enable(atoms); // divides into subdomains
 
-
     for (int i = 0; i < steps; i++) {
 
-        if(i != 0 && scale_length == true &&  i%scale_every == 0){
+        if (i >= 2000 && scale_length == true && i % scale_every == 0) {
             z_scale += scale_rate;
             scale << 50, 50, z_scale;
             domain.scale(atoms, scale);
@@ -476,37 +480,53 @@ void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
         neighbor_list.update(atoms);
         gupta(atoms, neighbor_list, rc);
         Verlet_two(timestep, atoms);
-        berendsen_thermostat( atoms, target_temp, timestep, 1000, 8.617333262e-5, 0);
+        double kinetic_energy = Kinetic(atoms, rc, 1, 1);
+        double global_kinetic = 0;
+        double local_kinetic = 0;
+
+        berendsen_thermostat(atoms, target_temp, timestep, 1000, 8.617333262e-5,
+                             0);
+        for (int k = 0; k < domain.nb_local(); k++) {
+            local_kinetic += atoms.kin_energy(k);
+        }
+        MPI_Reduce(&local_kinetic, &global_kinetic, 1, MPI_DOUBLE, MPI_SUM, 0,
+                   MPI_COMM_WORLD);
 
         double gl_force = 0;
         double gr_force = 0;
         double l_force = 0;
         double r_force = 0;
-        if(domain.rank() == 0){
-            for (int k = domain.nb_local();k < atoms.positions.cols(); ++k){
-                if(atoms.positions(2,k) < 0){
-                    l_force += atoms.forces(2,k) * mass;
+        if (domain.rank() == 0) {
+            for (int k = domain.nb_local(); k < atoms.positions.cols(); ++k) {
+                if (atoms.positions(2, k) < 0) {
+                    l_force += atoms.forces(2, k) * mass;
                 }
             }
         }
-        if(domain.rank() == domain.size() - 1){
-            for (int l = domain.nb_local();l < atoms.positions.cols(); ++l){
-                if(atoms.positions(2,l) > z_scale){
-                    r_force += atoms.forces(2,l) * mass;
+        if (domain.rank() == domain.size() - 1) {
+            for (int l = domain.nb_local(); l < atoms.positions.cols(); ++l) {
+                if (atoms.positions(2, l) > z_scale) {
+                    r_force += atoms.forces(2, l) * mass;
                 }
             }
-
         }
 
         gl_force = MPI::allreduce(l_force, MPI_SUM, MPI_COMM_WORLD);
         gr_force = MPI::allreduce(r_force, MPI_SUM, MPI_COMM_WORLD);
 
         domain.disable(atoms);
+        if (domain.rank() == 0 && i < 10000 && i % 100 == 0) {
+            std::cout << global_kinetic * 2 /
+                             (3 * 8.617333262e-5 * atoms.nb_atoms())
+                      << std::endl;
+        }
         if (i % save_every == 0 && domain.rank() == 0) {
-            strain = ( z_scale - domain_size ) / domain_size;
-            outdata << i << ", " << strain << ", " << gr_force << ", " << gl_force << ", \n";
-            std::cout << i << ", " << strain << ", " << gr_force << ", " << gl_force <<std::endl;
-            write_xyz("../xyz_output/milestone9_0_large/" + filename +
+            strain = (z_scale - domain_size) / domain_size;
+            outdata << i << ", " << strain << ", " << gr_force << ", "
+                    << gl_force << ", \n";
+            std::cout << i << ", " << strain << ", " << gr_force << ", "
+                      << gl_force << std::endl;
+            write_xyz("../xyz_output/milestone9_0_small/" + filename +
                           to_string(number) + file_extension,
                       atoms);
             number = number + 1;
@@ -519,11 +539,11 @@ void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
 
     outdata.close();
     MPI_Finalize();
-    std::cout << "Milestone 9 ran successfully " << std::endl;    
+    std::cout << "Milestone 9 ran successfully " << std::endl;
 }
-void lj_potential_distance(int steps, double mass, double sigma, double eps, int save_gap,
-                double rc){
-                    double potential = 0;
+void lj_potential_distance(int steps, double mass, double sigma, double eps,
+                           int save_gap, double rc) {
+    double potential = 0;
     double kinetic_energy = 0;
     double total_energy = 0;
     int number = 0;
@@ -536,30 +556,32 @@ void lj_potential_distance(int steps, double mass, double sigma, double eps, int
     }
     int nbAtoms = 2;
     Positions_t positions(3, nbAtoms);
-    Atoms atoms = {positions};  
-    atoms.masses = 1;  
-    atoms.positions(0,0) = 0;       
-    atoms.positions(0,1) = 1; 
-    // atoms.forces = 0;      
+    Atoms atoms = {positions};
     atoms.masses = 1;
-    double timestep = .0001 * pow((mass * pow(sigma, 2) / eps), (1 / 2));  
+    atoms.positions(0, 0) = 0;
+    atoms.positions(0, 1) = 1;
+    // atoms.forces = 0;
+    atoms.masses = 1;
+    double timestep = .0001 * pow((mass * pow(sigma, 2) / eps), (1 / 2));
     atoms.velocities = 0;
     for (int i = 0; i < steps; i++) {
-        Verlet_one(timestep, atoms);       
-        lj_direct_summation_force(atoms, rc, eps, sigma);       
-        Verlet_two(timestep, atoms);       
-        potential = Potential(atoms, rc, eps, sigma);       
-        kinetic_energy = Kinetic(atoms, rc, eps, sigma);       
+        Verlet_one(timestep, atoms);
+        lj_direct_summation_force(atoms, rc, eps, sigma);
+        Verlet_two(timestep, atoms);
+        potential = Potential(atoms, rc, eps, sigma);
+        kinetic_energy = Kinetic(atoms, rc, eps, sigma);
         double total_energy = kinetic_energy + potential;
-        
-        std::cout  << atoms.positions(0,0)  << " , "<<atoms.positions(0,1)<< std::endl;
+
+        std::cout << atoms.positions(0, 0) << " , " << atoms.positions(0, 1)
+                  << std::endl;
         // std::cout  << potential  << std::endl;
-        outdata << "[ " << atoms.positions(0,1) + atoms.positions(0,1) << " , " << potential << " , "
-                << total_energy << " ]," << std::endl;
+        outdata << "[ " << atoms.positions(0, 1) + atoms.positions(0, 1)
+                << " , " << potential << " , " << total_energy << " ],"
+                << std::endl;
         // atoms.positions(0,1) += 0.5;
         // save xyz file
         if (i % save_gap == 0) {
-            
+
             write_xyz("../xyz_output/lj_distance/" + filename +
                           to_string(number) + file_extension,
                       atoms);
@@ -567,19 +589,18 @@ void lj_potential_distance(int steps, double mass, double sigma, double eps, int
         }
     }
 
-    outdata.close();    
-                }
+    outdata.close();
+}
 
-void energy_drift(int steps, double mass, double boltzmann_kb,
-                double timestep, double rc, 
-                double sigma, double eps) {    
-    
+void energy_drift(int steps, double mass, double boltzmann_kb, double timestep,
+                  double rc, double sigma, double eps) {
+
     double potential = 0;
     double kinetic_energy = 0;
     double total_energy = 0;
     double temperature = 0;
     double totalEnergy = 0;
-    int j =-1;
+    int j = -1;
     int k = 0;
     double alpha = 0;
     double energy_drift = 0;
@@ -594,31 +615,31 @@ void energy_drift(int steps, double mass, double boltzmann_kb,
     Atoms atoms{positions};
     atoms.velocities = 0;
     atoms.masses = mass;
-    double init_total=0;
+    double init_total = 0;
     NeighborList neighbor_list(rc);
     for (int i = 0; i < steps; i++) {
         Verlet_one(timestep, atoms);
         neighbor_list.update(atoms);
-        potential = gupta(atoms, neighbor_list, rc);        
+        potential = gupta(atoms, neighbor_list, rc);
         Verlet_two(timestep, atoms);
         kinetic_energy = Kinetic(atoms, rc, eps, sigma);
         double total_energy = kinetic_energy + potential;
         // outdata << "[ " <<total_energy << " ,"
-        //             << (i+1)*timestep << " ]," << std::endl; 
-        if (j==-1){
-            init_total = total_energy;            
+        //             << (i+1)*timestep << " ]," << std::endl;
+        if (j == -1) {
+            init_total = total_energy;
             j++;
-        }else{            
-            energy_drift = (total_energy-init_total)/init_total;
-            outdata << "[ " <<energy_drift/923 << " ,"
-                    << (i+1)*timestep << " ]," << std::endl; 
-            init_total = total_energy;      
-        }   
-    }    
+        } else {
+            energy_drift = (total_energy - init_total) / init_total;
+            outdata << "[ " << energy_drift / 923 << " ," << (i + 1) * timestep
+                    << " ]," << std::endl;
+            init_total = total_energy;
+        }
+    }
     outdata.close();
 
     std::cout << "Embedded Atom potential ran successfully " << std::endl;
     std::cout << "Output has been written to data/milestone7.dat in the format "
                  "-  Average Total Energy (eV) vs Average temperature"
               << std::endl;
-}        
+}
