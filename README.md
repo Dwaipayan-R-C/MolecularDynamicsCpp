@@ -38,19 +38,23 @@ To accomplish this course successfully, I cordially thank [IMTEK Simulation Depa
 We use a thermostat to to remove excess energy from the system that is generated from implementing boundary condition for e.g. energy introduced by work performed on our system. We setup a molecular dynamics simulation initially as we are typically far from the equilibrium. And to achieve
 this equilibrium we might heat the system. Thus, we provide the system with an additional energy by factoring the velocity and then allow it to relax for some time.
 
+<p align="center" width="50%" height="50%">
+  <img src="plot_code/milestone_plots/milestone5.png" alt="animated" />
+</p>
+
 2. Energy conservation for MPI and serialized:<br/>
 Energy conservation is an important test to verify if our code and verlet integration is successful in propagating the simulation with time. This simulation is ran with 8 processes. 
 
-![Total energy vs time](xyz_output/milestone_7_xyz/gold.gif)
+<p align="center">
+  <img src="xyz_output/milestone_7_xyz/gold.gif" alt="animated" />
+</p>
 
 3. Nanowire simulation:<br/>
-We present the snapshots of the isometric view of the large Nanowire with 51500 atoms and calculated at temperature = $0 K$. The red color denotes the HCP lattice, brown being the FCC and yellow denotes the other atoms. 
+We present the snapshots of the isometric view of the large Nanowire with 51500 atoms and calculated at temperature = 0 K. The red color denotes the HCP lattice, brown being the FCC and yellow denotes the other atoms. 
 
 <p align="center">
   <img src="xyz_output/milestone_9_plots/github.gif" alt="animated" />
 </p>
-
-
 
 ## Run
 To run the project, navigate to the source code and create this directory,
