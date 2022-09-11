@@ -46,7 +46,10 @@ Energy conservation is an important test to verify if our code and verlet integr
 3. Nanowire simulation:<br/>
 We present the snapshots of the isometric view of the large Nanowire with 51500 atoms and calculated at temperature = $0 K$. The red color denotes the HCP lattice, brown being the FCC and yellow denotes the other atoms. 
 
-![Nanowire tensile stress](xyz_output/milestone_9_plots/github.gif)<br/>
+<p align="center">
+  <img src="xyz_output/milestone_9_plots/github.gif" alt="animated" />
+</p>
+
 
 
 ## Run
