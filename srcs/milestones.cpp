@@ -431,14 +431,14 @@ void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
     int number = 0;
     int k = 0;
     Eigen::Array3d scale;
-    double domain_size = 144.25;
+    double domain_size = 288.49956672;
     double z_scale = domain_size;
     double strain = 0;
 
-    Domain domain(MPI_COMM_WORLD, {50, 50, 144.25},
+    Domain domain(MPI_COMM_WORLD, {100, 100, 288.49956672},
                   {1, 1, MPI::comm_size(MPI_COMM_WORLD)}, {0, 0, 1});
     // 50, 50, 144.25
-    std::ofstream outdata("../data/milestone9_0.dat");
+    std::ofstream outdata("../data/milestone9_100_large.dat");
 
     if (!outdata) { // file couldn't be opened
         cerr << "Error: file could not be opened" << endl;
@@ -446,7 +446,7 @@ void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
     }
 
     auto [positions, velocities]{
-        read_xyz_with_velocities("../xyz/whiskers/whisker_small.xyz")};
+        read_xyz_with_velocities("../xyz/whiskers/whisker_large.xyz")};
     Atoms atoms{positions};
     atoms.velocities = 0;
     atoms.masses = mass;
@@ -468,7 +468,7 @@ void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
 
         if (i >= 2000 && scale_length == true && i % scale_every == 0) {
             z_scale += scale_rate;
-            scale << 50, 50, z_scale;
+            scale << 100, 100, z_scale;
             domain.scale(atoms, scale);
         }
 
@@ -526,7 +526,7 @@ void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
                     << gl_force << ", \n";
             std::cout << i << ", " << strain << ", " << gr_force << ", "
                       << gl_force << std::endl;
-            write_xyz("../xyz_output/milestone9_0_small/" + filename +
+            write_xyz("../xyz_output/milestone9_100_large/" + filename +
                           to_string(number) + file_extension,
                       atoms);
             number = number + 1;
