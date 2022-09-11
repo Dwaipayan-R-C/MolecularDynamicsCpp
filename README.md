@@ -46,7 +46,7 @@ this equilibrium we might heat the system. Thus, we provide the system with an a
 Energy conservation is an important test to verify if our code and verlet integration is successful in propagating the simulation with time. This simulation is ran with 8 processes. 
 <p float="left">
   <img src="xyz_output/milestone_7_xyz/gold.gif" alt="animated" />
-  <img src="plot_code/milestone_plots/milestone8_1process.png" />  
+  <img src="plot_code/milestone_plots/milestone8_1process_u.png" />  
 </p>
 
 
