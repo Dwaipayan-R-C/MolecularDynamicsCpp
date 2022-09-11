@@ -38,7 +38,7 @@ To accomplish this course successfully, I cordially thank [IMTEK Simulation Depa
 We use a thermostat to to remove excess energy from the system that is generated from implementing boundary condition for e.g. energy introduced by work performed on our system. We setup a molecular dynamics simulation initially as we are typically far from the equilibrium. And to achieve
 this equilibrium we might heat the system. Thus, we provide the system with an additional energy by factoring the velocity and then allow it to relax for some time.
 
-<p align="center" width="50%" height="50%">
+<p align="center" width="30%" height="30%">
   <img src="plot_code/milestone_plots/milestone5.png" alt="animated" />
 </p>
 
