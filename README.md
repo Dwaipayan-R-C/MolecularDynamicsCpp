@@ -39,7 +39,8 @@ We use a thermostat to to remove excess energy from the system that is generated
 this equilibrium we might heat the system. Thus, we provide the system with an additional energy by factoring the velocity and then allow it to relax for some time.
 
 <p align="center">
-  <img src="/plot_code/milestone_plots/milestone8_8process.png" width="200"/>
+  <img src="/plot_code/milestone_plots/milestone8_8process.png" width="300"/>
+  <img src="/plot_code/milestone_plots/milestone5.png" width="300"/>
 </p>
 
 2. Energy conservation for MPI and serialized:<br/>
@@ -51,7 +52,7 @@ Energy conservation is an important test to verify if our code and verlet integr
 
 Also, we present potential energy and kinetic energy vs timestep with adding heat to the system every 2000 fs. 
 <p align="center">
-  <img src="/plot_code/milestone_plots/Energyvstemp.png"/>
+  <img src="/plot_code/milestone_plots/Energyvstemp.png" width="500"/>
 </p>
 3. Nanowire simulation:<br/>
 We present the snapshots of the isometric view of the large Nanowire with 51500 atoms and calculated at temperature = 0 K. The red color denotes the HCP lattice, brown being the FCC and yellow denotes the other atoms. 
