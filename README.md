@@ -38,16 +38,16 @@ To accomplish this course successfully, I cordially thank [IMTEK Simulation Depa
 We use a thermostat to to remove excess energy from the system that is generated from implementing boundary condition for e.g. energy introduced by work performed on our system. We setup a molecular dynamics simulation initially as we are typically far from the equilibrium. And to achieve
 this equilibrium we might heat the system. Thus, we provide the system with an additional energy by factoring the velocity and then allow it to relax for some time.
 
-<p align="center">
-  <img src="/plot_code/milestone_plots/milestone8_8process.png" width="300"/>
-  <img src="/plot_code/milestone_plots/milestone5.png" width="300"/>
+<p align="center">  
+  <img src="/plot_code/milestone_plots/milestone5.png" width="400"/>
 </p>
 
 2. Energy conservation for MPI and serialized:<br/>
 Energy conservation is an important test to verify if our code and verlet integration is successful in propagating the simulation with time. This simulation is ran with 8 processes. 
 
 <p align="center">
-  <img src="xyz_output/milestone_7_xyz/gold.gif" alt="animated" />    
+  <img src="xyz_output/milestone_7_xyz/gold.gif" alt="animated" width="300"/>    
+  <img src="/plot_code/milestone_plots/milestone8_8process.png" width="300"/>
 </p>
 
 Also, we present potential energy and kinetic energy vs timestep with adding heat to the system every 2000 fs. 
