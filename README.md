@@ -38,18 +38,16 @@ To accomplish this course successfully, I cordially thank [IMTEK Simulation Depa
 We use a thermostat to to remove excess energy from the system that is generated from implementing boundary condition for e.g. energy introduced by work performed on our system. We setup a molecular dynamics simulation initially as we are typically far from the equilibrium. And to achieve
 this equilibrium we might heat the system. Thus, we provide the system with an additional energy by factoring the velocity and then allow it to relax for some time.
 
-![Berendsen Thermostat](plot_code/milestone_plots/milestone5.png)
-
 2. Energy conservation for MPI and serialized:<br/>
-Energy conservation is an important test to verify if our code and verlet integration is successful in propagating the simulation with time. Thus, we provide plot for energy conservation for both 1 process and 8 processes. 
+Energy conservation is an important test to verify if our code and verlet integration is successful in propagating the simulation with time. This simulation is ran with 8 processes. 
 
-![Total energy vs time](plot_code/milestone_plots/Energy_conservation.png )
+![Total energy vs time](xyz_output/milestone_7_xyz/gold.gif)
 
-3. Gold cluster simulation:<br/>
-We perform real life simulation for two objects - Gold cluster and nanowire whisker. In gold cluster, we perform different energy variations with time and temperature. Also, calculate the melting point, latent heat and heat capacity with cluster sizes. Here, we provide plots for kinetic and potential energy vs time plot and solid and molten state gold cluster. 
+3. Nanowire simulation:<br/>
+We present the snapshots of the isometric view of the large Nanowire with 51500 atoms and calculated at temperature = $0 K$. The red color denotes the HCP lattice, brown being the FCC and yellow denotes the other atoms. 
 
-![Solid and Molten cluster](plot_code/milestone_plots/Gold_cluster.png)<br/>
-![Energy vs time](plot_code/milestone_plots/Energyvstemp.png)
+![Nanowire tensile stress](xyz_output/milestone_9_plots/github.gif)<br/>
+
 
 ## Run
 To run the project, navigate to the source code and create this directory,
