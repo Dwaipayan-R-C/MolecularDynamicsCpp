@@ -47,7 +47,7 @@ Energy conservation is an important test to verify if our code and verlet integr
 
 <p float="left">
   <img src="xyz_output/milestone_7_xyz/gold.gif" alt="animated" />
-  <img src="/plot_code/milestone_plots/milestone8_8process.png" />  
+  <img src="/plot_code/milestone_plots/milestone8_8process.png" width="20"/>  
 </p>
 
 3. Nanowire simulation:<br/>
