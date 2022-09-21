@@ -5,11 +5,17 @@ from math import sqrt
 import numpy as np
 
 import ase.io as io
-from ase.lattice.cubic import FaceCenteredCubic
+import os
 
+from ase.lattice.cubic import FaceCenteredCubic
+cuurent_dir = os.getcwd()
+
+save_path = os.path.join(cuurent_dir,'xyz\\whiskers\\whisker_7_5_25.xyz')
 # radius = 15
 # size = [14, 10, 50]  # 6590 atoms
 
+# radius = 7.5
+# size = [7, 5, 25]
 radius = 15
 size = [14, 10, 100]
 
@@ -37,5 +43,5 @@ del a[m]
 a.center()
 a.set_pbc([False, False, True])
 
-io.write('whisker.xyz', a)
-io.write('whisker.data', a, format='lammps-data')
+io.write(save_path, a)
+# io.write('whisker_7_5_25.data', a, format='lammps-data')

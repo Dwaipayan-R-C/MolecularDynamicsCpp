@@ -6,7 +6,7 @@ Skeleton for numerical projects with C++. This skeleton uses
 [Googletest](https://github.com/google/googletest).
 To accomplish this course successfully, I cordially thank [IMTEK Simulation Department](https://www.imtek.uni-freiburg.de/professuren/simulation/simulation) to guide through the process. Also we use [Ovito](https://www.ovito.org/about/) to visualize our atoms and use  [Numpy](https://numpy.org/), [Matplotlib](https://matplotlib.org/) for plots. 
 
-[Report - High Performance Computing - Molecular dynamics with C++](https://github.com/Dwaipayan-R-C/MolecularDynamicsCpp/report/HPC_MD_Cpp_Dwaipayan.pdf) 
+[Report - High Performance Computing - Molecular dynamics with C++](report/HPC_MD_Cpp_Dwaipayan.pdf) 
 
 ## Folder Structure
     .

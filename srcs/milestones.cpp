@@ -423,7 +423,7 @@ void milestone8(int argc, char *argv[], int steps, double mass, double timestep,
               << std::endl;
 }
 
-void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
+void milestone9(int argc, char *argv[], double mass, double timestep,
                 double rc, int save_every, bool scale_length, int scale_every,
                 double scale_rate, int target_temp) {
 
@@ -431,22 +431,21 @@ void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
     int number = 0;
     int k = 0;
     Eigen::Array3d scale;
-    double domain_size = 288.49956672;
+    double domain_size = 141.942;
     double z_scale = domain_size;
     double strain = 0;
 
-    Domain domain(MPI_COMM_WORLD, {100, 100, 288.49956672},
+    Domain domain(MPI_COMM_WORLD, {50, 50, 141.942},
                   {1, 1, MPI::comm_size(MPI_COMM_WORLD)}, {0, 0, 1});
-    // 50, 50, 144.25
-    std::ofstream outdata("../data/milestone9_100_large.dat");
+    // 50, 50, 144.25 142.086 141.942
+    std::ofstream outdata("../data/milestone9_100_002_small.dat");
 
     if (!outdata) { // file couldn't be opened
         cerr << "Error: file could not be opened" << endl;
         exit(1);
     }
-
     auto [positions, velocities]{
-        read_xyz_with_velocities("../xyz/whiskers/whisker_large.xyz")};
+        read_xyz_with_velocities("../xyz/whiskers/whisker_small_002.xyz")};
     Atoms atoms{positions};
     atoms.velocities = 0;
     atoms.masses = mass;
@@ -463,12 +462,11 @@ void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
     auto start = high_resolution_clock::now();
     NeighborList neighbor_list(rc);
     domain.enable(atoms); // divides into subdomains
-
-    for (int i = 0; i < steps; i++) {
-
-        if (i >= 2000 && scale_length == true && i % scale_every == 0) {
+    int i=0;
+    while (z_scale<=154.433) {
+        if (i >= 20000 && scale_length == true && i % scale_every == 0) {
             z_scale += scale_rate;
-            scale << 100, 100, z_scale;
+            scale << 50, 50, z_scale;
             domain.scale(atoms, scale);
         }
 
@@ -524,13 +522,14 @@ void milestone9(int argc, char *argv[], int steps, double mass, double timestep,
             strain = (z_scale - domain_size) / domain_size;
             outdata << i << ", " << strain << ", " << gr_force << ", "
                     << gl_force << ", \n";
-            std::cout << i << ", " << strain << ", " << gr_force << ", "
-                      << gl_force << std::endl;
-            write_xyz("../xyz_output/milestone9_100_large/" + filename +
+            std::cout << i << ", " << z_scale << ", " << strain << ", "
+                      << gr_force << ", " << gl_force << std::endl;
+            write_xyz("../xyz_output/milestone9_100_002_small/" + filename +
                           to_string(number) + file_extension,
                       atoms);
             number = number + 1;
         }
+        i++;
         domain.enable(atoms);
     }
 
