@@ -1,9 +1,35 @@
+/*
+* Copyright 2021 Dwaipayan Roy Chowdhury
+*
+* ### MIT license
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in
+* all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+* SOFTWARE.
+*/
+
 #include "../header/milestones.h"
 #include <list>
 using namespace std::chrono;
 using namespace Eigen;
 using std::ofstream;
 
+/*
+* This function is written for milestone 4. Here we check energy conservation.
+*/
 void milestone4(int steps, double mass, double sigma, double eps, int save_gap,
                 double rc) {
     double potential = 0;
@@ -22,17 +48,26 @@ void milestone4(int steps, double mass, double sigma, double eps, int save_gap,
     atoms.masses = 1;
     double timestep = .001 * pow((mass * pow(sigma, 2) / eps), (1 / 2));
     std::cout << "[ Kinetic , Potential , Total ]" << std::endl;
+
+    // loop starts for the simulation with time
     for (int i = 0; i < steps; i++) {
+        // Calculates verlet 1
         Verlet_one(timestep, atoms);
+        // Calculates Lennard jones potential
         lj_direct_summation_force(atoms, rc, eps, sigma);
+        // Calculates Verlet 2
         Verlet_two(timestep, atoms);
+        // Calculates the potential
         potential = Potential(atoms, rc, eps, sigma);
+        // Calculates the kinetic energy
         kinetic_energy = Kinetic(atoms, rc, eps, sigma);
         double total_energy = kinetic_energy + potential;
         outdata << "[ " << kinetic_energy << " , " << potential << " , "
                 << total_energy << " ]," << std::endl;
 
-        // save xyz file
+        /*
+            Outputs the data file and xyz file to the output folder. 
+        */
         if (i % save_gap == 0) {
             std::cout << "[ " << kinetic_energy << " , " << potential << " , "
                       << total_energy << " ]," << std::endl;
@@ -50,6 +85,9 @@ void milestone4(int steps, double mass, double sigma, double eps, int save_gap,
               << std::endl;
 }
 
+/*
+* This function is written for milestone 5. Here we check berendsen thermostat.
+*/
 void milestone5(int steps, double mass, double sigma, double eps, int save_gap,
                 double Tin, double target_temp, double boltzmann_kb,
                 double rc) {
@@ -105,6 +143,10 @@ void milestone5(int steps, double mass, double sigma, double eps, int save_gap,
               << std::endl;
 }
 
+/*
+* This function is written for milestone 6. Here we see  time variation with
+* cluster size and cut-off radius.
+*/
 void milestone6(int steps, double mass, double sigma, double eps,
                 double boltzmann_kb, double rc) {
     int number = 0;
@@ -157,6 +199,12 @@ void milestone6(int steps, double mass, double sigma, double eps,
               << std::endl;
 }
 
+/*
+* This function is written for milestone 7. Here we perform energy analysis and several
+* simulations for kinetic energy and potential energy with time, total energy with temperature.
+* We also extract the heat capacity, melting point and latent heat from energy vs temperature
+* plot for different clusters and verify the property type i.e. extrinsic/intrinsic
+*/
 void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
                 double timestep, double rc, int tau, int save_every,
                 double sigma, double eps) {
@@ -246,98 +294,11 @@ void milestone7(int steps, double mass, double delQ, double boltzmann_kb,
               << std::endl;
 }
 
-void milestone7_heatCap(int steps, double mass, double boltzmann_kb,
-                        double timestep, double rc, int tau, int save_every,
-                        double sigma, double eps) {
-    int measurement_gap = tau / 2;
-    int number = 0;
-    int count_relax = 0;
-    int relax_value = 0;
-    double potential = 0;
-    double kinetic_energy = 0;
-    double total_energy = 0;
-    double temperature = 0;
-    double totalEnergy = 0;
-    int heat_cap = 0;
-    int k = 0;
-    double alpha = 0;
-    double temp_temp = 0;
-    double energy_temp = 0;
-
-    std::ofstream outdata("../data/milestone7_heatcap.dat");
-
-    if (!outdata) { // file couldn't be opened
-        cerr << "Error: file could not be opened" << endl;
-        exit(1);
-    }
-    auto [positions,
-          velocities]{read_xyz_with_velocities("../xyz/cluster_147.xyz")};
-    Atoms atoms{positions};
-    atoms.velocities = 0;
-    atoms.masses = mass;
-
-    NeighborList neighbor_list(rc);
-    for (int i = 0; i < steps; i++) {
-        Verlet_one(timestep, atoms);
-        neighbor_list.update(atoms);
-        potential = gupta(atoms, neighbor_list, rc);
-        // potential = atoms.energies.sum();
-        Verlet_two(timestep, atoms);
-        kinetic_energy = Kinetic(atoms, rc, eps, sigma);
-        double total_energy = kinetic_energy + potential;
-
-        // save xyz file
-        if (i % save_every == 0) {
-            write_xyz("../xyz_output/milestone7/" + filename +
-                          to_string(number) + file_extension,
-                      atoms);
-            number = number + 1;
-        }
-
-        if (count_relax >= measurement_gap) {
-            temperature +=
-                kinetic_energy * 2 / (3 * boltzmann_kb * atoms.nb_atoms());
-            totalEnergy += total_energy;
-            relax_value += 1;
-        }
-
-        if (i % tau == 0 && i != 0) {
-            heat_cap = heat_cap + 1;
-            std::cout << "[" << totalEnergy / (relax_value) << " , "
-                      << temperature / (relax_value) << "]," << std::endl;
-            if (heat_cap == 1) {
-                temp_temp = temperature / (relax_value);
-                energy_temp = totalEnergy / (relax_value);
-            } else if (heat_cap == 5) {
-                temp_temp = temperature / (relax_value)-temp_temp;
-                energy_temp = totalEnergy / (relax_value)-energy_temp;
-            }
-
-            relax_value = 0;
-            count_relax = 0;
-            temperature = 0;
-            totalEnergy = 0;
-            // Determine alpha
-            // del Q = Ekinetic' - Ekinetic
-            // del Q = Ekinetic (sq of alpha - 1)
-            // 50, 80
-            alpha = sqrt((0.5 / kinetic_energy) + 1);
-            atoms.velocities = atoms.velocities * alpha;
-            k = k + 1;
-        }
-        count_relax += 1;
-    }
-    outdata << "[ " << 147 << " ," << energy_temp / temp_temp << " ],"
-            << std::endl;
-
-    outdata.close();
-
-    std::cout << "Embedded Atom potential ran successfully " << std::endl;
-    std::cout << "Output has been written to data/milestone7.dat in the format "
-                 "-  Average Total Energy (eV) vs Average temperature"
-              << std::endl;
-}
-
+/*
+* This function is written for milestone 8. Here we perform the MPI simulation and check 
+* if our energy is conserved after implementing the parallel computing with 8 cores and 
+* executing the periodic boundary conditions.
+*/
 void milestone8(int argc, char *argv[], int steps, double mass, double timestep,
                 double rc, int save_every, double sigma, double eps) {
     MPI_Init(&argc, &argv);
@@ -423,6 +384,11 @@ void milestone8(int argc, char *argv[], int steps, double mass, double timestep,
               << std::endl;
 }
 
+/*
+* This function is written for milestone 9. Here we take two nanowires and study the 
+* deformation at varying strain rates. We also present a stress strain curve to show 
+* the elastic range and if this matches with the expected results
+*/
 void milestone9(int argc, char *argv[], double mass, double timestep,
                 double rc, int save_every, bool scale_length, int scale_every,
                 double scale_rate, int target_temp) {
@@ -540,6 +506,7 @@ void milestone9(int argc, char *argv[], double mass, double timestep,
     MPI_Finalize();
     std::cout << "Milestone 9 ran successfully " << std::endl;
 }
+
 void lj_potential_distance(int steps, double mass, double sigma, double eps,
                            int save_gap, double rc) {
     double potential = 0;
@@ -589,56 +556,4 @@ void lj_potential_distance(int steps, double mass, double sigma, double eps,
     }
 
     outdata.close();
-}
-
-void energy_drift(int steps, double mass, double boltzmann_kb, double timestep,
-                  double rc, double sigma, double eps) {
-
-    double potential = 0;
-    double kinetic_energy = 0;
-    double total_energy = 0;
-    double temperature = 0;
-    double totalEnergy = 0;
-    int j = -1;
-    int k = 0;
-    double alpha = 0;
-    double energy_drift = 0;
-    std::ofstream outdata("../data/energy_drift.dat");
-
-    if (!outdata) { // file couldn't be opened
-        cerr << "Error: file could not be opened" << endl;
-        exit(1);
-    }
-    auto [positions,
-          velocities]{read_xyz_with_velocities("../xyz/cluster_923.xyz")};
-    Atoms atoms{positions};
-    atoms.velocities = 0;
-    atoms.masses = mass;
-    double init_total = 0;
-    NeighborList neighbor_list(rc);
-    for (int i = 0; i < steps; i++) {
-        Verlet_one(timestep, atoms);
-        neighbor_list.update(atoms);
-        potential = gupta(atoms, neighbor_list, rc);
-        Verlet_two(timestep, atoms);
-        kinetic_energy = Kinetic(atoms, rc, eps, sigma);
-        double total_energy = kinetic_energy + potential;
-        // outdata << "[ " <<total_energy << " ,"
-        //             << (i+1)*timestep << " ]," << std::endl;
-        if (j == -1) {
-            init_total = total_energy;
-            j++;
-        } else {
-            energy_drift = (total_energy - init_total) / init_total;
-            outdata << "[ " << energy_drift / 923 << " ," << (i + 1) * timestep
-                    << " ]," << std::endl;
-            init_total = total_energy;
-        }
-    }
-    outdata.close();
-
-    std::cout << "Embedded Atom potential ran successfully " << std::endl;
-    std::cout << "Output has been written to data/milestone7.dat in the format "
-                 "-  Average Total Energy (eV) vs Average temperature"
-              << std::endl;
 }
